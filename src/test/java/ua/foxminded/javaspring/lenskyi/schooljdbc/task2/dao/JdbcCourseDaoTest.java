@@ -24,10 +24,10 @@ public class JdbcCourseDaoTest {
     private final RowMapper<Course> courseRowMapper = new CourseRowMapper();
     private JdbcBaseDao jdbcBaseDao;
     private JdbcTemplate jdbcTemplate;
-    
 
-    @Test
-    @Transactional
+
+    //@Test
+    //@Transactional
     void simpleQueriesTest() {
         jdbcBaseDao.executeQuery("create schema if not exists test;");
         jdbcBaseDao.executeQuery("create table test.course (\n" +

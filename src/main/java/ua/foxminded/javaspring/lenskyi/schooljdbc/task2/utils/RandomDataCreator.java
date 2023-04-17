@@ -1,29 +1,15 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
 
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.*;
 
-@Component
 public class RandomDataCreator {
-
-    private static Random rand;
-
-    static {
-        try {
-            rand = SecureRandom.getInstanceStrong();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static final String NAMES_TXT = "/names.txt";
     private static final String COURSES = "/courses.txt";
@@ -31,11 +17,14 @@ public class RandomDataCreator {
     private static final String SEMICOLON = ";";
     private static final String HYPHEN = "-";
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
-    private FileReader reader = new FileReader();
+    private FileReader reader;
+    private Random rand;
     private String[] names = reader.readFile(NAMES_TXT).split(SEMICOLON);
 
     @Autowired
-    public RandomDataCreator() {
+    public RandomDataCreator(FileReader reader, Random rand) {
+        this.reader = reader;
+        this.rand = rand;
     }
 
     public List<Group> generateGroups(int numGroups) {

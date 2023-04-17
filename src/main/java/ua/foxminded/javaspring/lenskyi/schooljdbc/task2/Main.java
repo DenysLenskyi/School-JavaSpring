@@ -4,8 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.UserInteraction;
 
-import java.util.Scanner;
-
 @SpringBootApplication
 public class Main {
 
