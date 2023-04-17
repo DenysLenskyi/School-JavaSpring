@@ -1,16 +1,14 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import org.junit.ClassRule;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.CourseRowMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

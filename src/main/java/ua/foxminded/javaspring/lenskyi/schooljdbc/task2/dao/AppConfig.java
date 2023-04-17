@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,13 +17,22 @@ import java.util.Random;
 @ComponentScan(basePackageClasses = AppConfig.class)
 public class AppConfig {
 
+    @Value("${spring.datasource.url}")
+    private String DB_URL;
+    @Value("${spring.datasource.username}")
+    private String DB_USER;
+    @Value("${spring.datasource.password}")
+    private String DB_PASSWORD;
+    @Value("${spring.datasource.driver-class-name}")
+    private String DB_DRIVER_NAME;
+
     @Bean
     public DataSource getDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.username("lenskyi");
-        dataSourceBuilder.password("lenskyi");
-        dataSourceBuilder.url("jdbc:postgresql://localhost/school_db_lenskyi");
-        dataSourceBuilder.driverClassName("org.postgresql.Driver");
+        dataSourceBuilder.username(DB_USER);
+        dataSourceBuilder.password(DB_PASSWORD);
+        dataSourceBuilder.url(DB_URL);
+        dataSourceBuilder.driverClassName(DB_DRIVER_NAME);
         return dataSourceBuilder.build();
     }
 

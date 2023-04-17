@@ -1,6 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
@@ -12,7 +13,8 @@ public class CreateTablesCommand implements Command {
 
     private FileReader reader;
     private JdbcBaseDao jdbcBaseDao;
-    private static final String TABLES_INITIATION_SCRIPT_FILE_NAME = "/initiate-tables.sql";
+    @Value("${filename.initiate-tables}")
+    private String TABLES_INITIATION_SCRIPT_FILE_NAME;
 
     @Autowired
     public CreateTablesCommand(FileReader reader, JdbcBaseDao jdbcBaseDao) {

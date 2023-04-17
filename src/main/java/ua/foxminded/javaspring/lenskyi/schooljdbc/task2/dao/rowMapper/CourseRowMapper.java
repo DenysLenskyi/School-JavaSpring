@@ -1,4 +1,4 @@
-package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
+package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

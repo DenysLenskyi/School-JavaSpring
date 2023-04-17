@@ -1,6 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
@@ -11,8 +12,10 @@ import java.util.*;
 
 public class RandomDataCreator {
 
-    private static final String NAMES_TXT = "/names.txt";
-    private static final String COURSES = "/courses.txt";
+    @Value("${filename.names}")
+    private String NAMES_TXT = "/names.txt";
+    @Value("${filename.courses}")
+    private String COURSES;
     private static final String SON = "son";
     private static final String SEMICOLON = ";";
     private static final String HYPHEN = "-";
@@ -77,6 +80,17 @@ public class RandomDataCreator {
         return students;
     }
 
+    private String generateStudentFirstName() {
+        int maxNumInNamesArray = 40;
+        return names[rand.nextInt(maxNumInNamesArray)];
+    }
+
+    private String generateStudentLastName() {
+        int maxNumInNamesArray = 40;
+        StringBuilder studentLastName = new StringBuilder();
+        return studentLastName.append(names[rand.nextInt(maxNumInNamesArray)]).append(SON).toString();
+    }
+
     private void assignStudentsToGroups(List<Student> students, int numOfGroups) {
         int numOfAssignedStudents = 0;
         int numStudentsToAssign = students.size();
@@ -95,17 +109,6 @@ public class RandomDataCreator {
                 }
             }
         }
-    }
-
-    private String generateStudentFirstName() {
-        int maxNumInNamesArray = 40;
-        return names[rand.nextInt(maxNumInNamesArray)];
-    }
-
-    private String generateStudentLastName() {
-        int maxNumInNamesArray = 40;
-        StringBuilder studentLastName = new StringBuilder();
-        return studentLastName.append(names[rand.nextInt(maxNumInNamesArray)]).append(SON).toString();
     }
 
     public List<StudentCourse> generateStudentCourseRelation(int numStudents) {
