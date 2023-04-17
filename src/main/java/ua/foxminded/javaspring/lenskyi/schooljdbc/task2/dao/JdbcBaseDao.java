@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcBaseDao {
 
-    private JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
     @Autowired
     public JdbcBaseDao(JdbcTemplate jdbcTemplate) {

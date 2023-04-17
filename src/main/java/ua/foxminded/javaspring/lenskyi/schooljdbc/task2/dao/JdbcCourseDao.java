@@ -11,16 +11,14 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 @Repository
-public class JdbcCourseDao {
-
-    private JdbcTemplate jdbcTemplate;
+public class JdbcCourseDao extends JdbcBaseDao {
 
     public static final String INSERT_INTO_COURSE = "insert into school.course (name, description) values (?, ?)";
     public static final String FIND_BY_ID = "select * from school.course where id = ?";
 
     @Autowired
     public JdbcCourseDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+        super(jdbcTemplate);
     }
 
     @Transactional
