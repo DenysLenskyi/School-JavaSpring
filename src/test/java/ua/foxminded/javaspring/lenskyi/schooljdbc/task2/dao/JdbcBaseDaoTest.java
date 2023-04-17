@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -51,6 +52,7 @@ public class JdbcBaseDaoTest {
     }
 
     @Test
+    @Transactional
     void simpleQueriesTest() {
         jdbcBaseDao.executeQuery("create schema if not exists test;");
         jdbcBaseDao.executeQuery("create table test.course (\n" +

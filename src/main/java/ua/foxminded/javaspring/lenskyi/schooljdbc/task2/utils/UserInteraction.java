@@ -1,7 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandDefendant;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
@@ -10,7 +9,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBui
 import java.util.Scanner;
 
 @Component
-public class UserInteraction implements CommandLineRunner {
+public class UserInteraction {
 
     private static final String EXIT = "exit";
     private static final String INCORRECT_INPUT = "Incorrect input";
@@ -23,12 +22,7 @@ public class UserInteraction implements CommandLineRunner {
         this.commandHolder = commandHolder;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        main(args);
-    }
-
-    public static void main(String[] args) {
+    public static void runApp() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print('>');
