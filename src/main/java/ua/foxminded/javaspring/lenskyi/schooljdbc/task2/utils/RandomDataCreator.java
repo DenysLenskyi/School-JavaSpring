@@ -2,6 +2,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
@@ -10,6 +11,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Component
 public class RandomDataCreator {
 
     @Value("${filename.names}")
@@ -22,7 +24,6 @@ public class RandomDataCreator {
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
     private FileReader reader;
     private Random rand;
-    private String[] names = reader.readFile(NAMES_TXT).split(SEMICOLON);
 
     @Autowired
     public RandomDataCreator(FileReader reader, Random rand) {
@@ -68,24 +69,25 @@ public class RandomDataCreator {
 
     public List<Student> generateStudents(int numStudents) {
         List<Student> students = new ArrayList<>();
+        String[] names = reader.readFile(NAMES_TXT).split(SEMICOLON);
         for (int i = 1; i <= numStudents; i++) {
             Student student = new Student();
             student.setId(i);
             student.setGroupId(0);
-            student.setFirstName(generateStudentFirstName());
-            student.setLastName(generateStudentLastName());
+            student.setFirstName(generateStudentFirstName(names));
+            student.setLastName(generateStudentLastName(names));
             students.add(student);
         }
         assignStudentsToGroups(students, 10);
         return students;
     }
 
-    private String generateStudentFirstName() {
+    private String generateStudentFirstName(String[] names) {
         int maxNumInNamesArray = 40;
         return names[rand.nextInt(maxNumInNamesArray)];
     }
 
-    private String generateStudentLastName() {
+    private String generateStudentLastName(String[] names) {
         int maxNumInNamesArray = 40;
         StringBuilder studentLastName = new StringBuilder();
         return studentLastName.append(names[rand.nextInt(maxNumInNamesArray)]).append(SON).toString();

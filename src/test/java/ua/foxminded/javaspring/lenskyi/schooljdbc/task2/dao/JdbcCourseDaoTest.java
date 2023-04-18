@@ -1,42 +1,70 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
-import org.junit.ClassRule;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.CourseRowMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@Testcontainers
+@JdbcTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class JdbcCourseDaoTest {
 
-    @ClassRule
-    public static PostgreSQLContainer postgreSQLContainer = PostgresqlTestContainer.getInstance();
+    private static final String INIT_TABLE = """
+            CREATE SCHEMA IF NOT EXISTS school;
+            CREATE TABLE IF NOT EXISTS school.course (
+                ID SERIAL PRIMARY KEY,
+                NAME TEXT,
+                DESCRIPTION TEXT
+            );
+            """;
 
-    private final RowMapper<Course> courseRowMapper = new CourseRowMapper();
-    private JdbcBaseDao jdbcBaseDao;
+    private JdbcCourseDao jdbcCourseDao;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Container
+    private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15-alpine");
 
-    //@Test
-    //@Transactional
-    void simpleQueriesTest() {
-        jdbcBaseDao.executeQuery("create schema if not exists test;");
-        jdbcBaseDao.executeQuery("create table test.course (\n" +
-                "id serial primary key,\n" +
-                "name text,\n" +
-                "description text\n" +
-                ");");
-        jdbcBaseDao.executeQuery("insert into test.course (name, description) values \n" +
-                "('Gor', 'just a guy'),\n" +
-                "('Denys', 'awesome dude');");
-        Course gor = jdbcTemplate.queryForObject("select * from test.course where id = 1;", courseRowMapper);
-        assertEquals(gor.getName(), "Gor");
+    @BeforeEach
+    void setUp() {
+        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
+    }
+
+    @Test
+    void addCoursesTest() {
+        jdbcCourseDao.jdbcTemplate.execute(INIT_TABLE);
+        Course math = new Course(1, "Math", "smth about numbers");
+        Course english = new Course(2, "Eng", "smth about letters");
+        List<Course> courses = new ArrayList<>();
+        courses.add(math);
+        courses.add(english);
+        jdbcCourseDao.addCourses(courses);
+        List<Map<String, Object>> test = jdbcCourseDao.jdbcTemplate.queryForList("select * from school.course");
+        assertEquals(2, test.size());
+    }
+
+    @Test
+    void findCourseByIdTest() {
+        jdbcCourseDao.jdbcTemplate.execute(INIT_TABLE);
+        jdbcCourseDao.jdbcTemplate.execute("insert into school.course (id, name, description) " +
+                "values (1, 'Math', 'smth about numbers');");
+        Course test = jdbcCourseDao.findCourseById(1);
+        assertEquals(1, test.getId());
+        assertEquals("Math", test.getName());
+        assertEquals("smth about numbers", test.getDescription());
     }
 }
