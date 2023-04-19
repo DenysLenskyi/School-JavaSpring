@@ -36,7 +36,8 @@ class JdbcBaseDaoTest {
     private JdbcTemplate jdbcTemplate;
 
     @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15-alpine");
+    private static final PostgreSQLContainer<?> postgreSQLContainer =
+            new PostgreSQLContainer<>("postgres:15-alpine");
 
     @BeforeEach
     void setUp() {

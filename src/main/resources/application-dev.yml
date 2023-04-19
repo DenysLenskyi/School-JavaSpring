@@ -1,0 +1,11 @@
+spring:
+  flyway:
+    enabled: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/spring-jdbc-docker-school
+    username: postgres
+    password: password
+
+    sql:
+      init:
+        mode: always
