@@ -1,4 +1,4 @@
-package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
+package ua.foxminded.javaspring.lenskyi.schooljdbc.task2;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -25,7 +25,6 @@ public class AppConfig {
     @Value("${spring.datasource.driver-class-name}")
     private String DB_DRIVER_NAME;
 
-    @Bean
     public DataSource getDataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.username(DB_USER);
@@ -35,7 +34,6 @@ public class AppConfig {
         return dataSourceBuilder.build();
     }
 
-    @Bean
     public JdbcTemplate jdbcTemplate() {
         return new JdbcTemplate(getDataSource());
     }

@@ -59,8 +59,8 @@ public class JdbcCourseDaoTest {
 
     @Test
     void findCourseByIdTest() {
-        jdbcCourseDao.jdbcTemplate.execute(INIT_TABLE);
-        jdbcCourseDao.jdbcTemplate.execute("insert into school.course (id, name, description) " +
+        jdbcCourseDao.executeQuery(INIT_TABLE);
+        jdbcCourseDao.executeQuery("insert into school.course (id, name, description) " +
                 "values (1, 'Math', 'smth about numbers');");
         Course test = jdbcCourseDao.findCourseById(1);
         assertEquals(1, test.getId());

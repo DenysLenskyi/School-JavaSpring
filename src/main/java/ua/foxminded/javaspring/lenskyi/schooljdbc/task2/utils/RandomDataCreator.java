@@ -14,21 +14,21 @@ import java.util.*;
 @Component
 public class RandomDataCreator {
 
-    @Value("${filename.names}")
-    private String NAMES_TXT = "/names.txt";
-    @Value("${filename.courses}")
-    private String COURSES;
     private static final String SON = "son";
     private static final String SEMICOLON = ";";
     private static final String HYPHEN = "-";
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
     private FileReader reader;
-    private Random rand;
+    private Random secureRandom;
+    @Value("${filename.names}")
+    private String NAMES_TXT;
+    @Value("${filename.courses}")
+    private String COURSES;
 
     @Autowired
-    public RandomDataCreator(FileReader reader, Random rand) {
+    public RandomDataCreator(FileReader reader, Random secureRandom) {
         this.reader = reader;
-        this.rand = rand;
+        this.secureRandom = secureRandom;
     }
 
     public List<Group> generateGroups(int numGroups) {
@@ -48,13 +48,13 @@ public class RandomDataCreator {
         int maxNumberInGroupName = 99;
         return groupName.append(getRandomCharactersUpperCase(2))
                 .append(HYPHEN)
-                .append(rand.nextInt(minNumberInGroupName, maxNumberInGroupName + 1))
+                .append(secureRandom.nextInt(minNumberInGroupName, maxNumberInGroupName + 1))
                 .toString();
     }
 
     private String getRandomCharactersUpperCase(int numOfChars) {
         byte[] array = new byte[256];
-        rand.nextBytes(array);
+        secureRandom.nextBytes(array);
         String randomString = new String(array, StandardCharsets.UTF_8);
         StringBuilder r = new StringBuilder();
         for (int k = 0; k < randomString.length(); k++) {
@@ -84,13 +84,13 @@ public class RandomDataCreator {
 
     private String generateStudentFirstName(String[] names) {
         int maxNumInNamesArray = 40;
-        return names[rand.nextInt(maxNumInNamesArray)];
+        return names[secureRandom.nextInt(maxNumInNamesArray)];
     }
 
     private String generateStudentLastName(String[] names) {
         int maxNumInNamesArray = 40;
         StringBuilder studentLastName = new StringBuilder();
-        return studentLastName.append(names[rand.nextInt(maxNumInNamesArray)]).append(SON).toString();
+        return studentLastName.append(names[secureRandom.nextInt(maxNumInNamesArray)]).append(SON).toString();
     }
 
     private void assignStudentsToGroups(List<Student> students, int numOfGroups) {
@@ -99,7 +99,7 @@ public class RandomDataCreator {
         int minNumStudentsForGroup = 10;
         int maxNumStudentsForGroup = 30;
         for (int i = 1; i <= numOfGroups; i++) {
-            int randomNumOfStudentsForOneGroup = rand.nextInt(minNumStudentsForGroup, maxNumStudentsForGroup + 1);
+            int randomNumOfStudentsForOneGroup = secureRandom.nextInt(minNumStudentsForGroup, maxNumStudentsForGroup + 1);
             numOfAssignedStudents += randomNumOfStudentsForOneGroup;
             if (numOfAssignedStudents > students.size()) {
                 break;
@@ -120,10 +120,10 @@ public class RandomDataCreator {
         for (int i = 1; i <= numStudents; i++) {
             StudentCourse studentCourse = new StudentCourse();
             studentCourse.setStudentId(i);
-            int numCourses = rand.nextInt(1, 4);
+            int numCourses = secureRandom.nextInt(1, 4);
             Set<Integer> coursesForStudent = new HashSet<>();
             while (numCourses > 0) {
-                coursesForStudent.add(rand.nextInt(minCourseId, maxCourseId + 1));
+                coursesForStudent.add(secureRandom.nextInt(minCourseId, maxCourseId + 1));
                 numCourses--;
             }
             studentCourse.setCourseId(coursesForStudent);
