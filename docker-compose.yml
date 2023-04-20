@@ -1,10 +1,11 @@
 version: '3.8'
 
 services:
-  db:
+  spring-jdbc-docker-school:
     image: postgres:15-alpine
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: lenskyi
+      POSTGRES_USER: lenskyi
       POSTGRES_DB: spring-jdbc-docker-school

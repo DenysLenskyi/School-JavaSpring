@@ -1,28 +1,39 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandDefendant;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.CreateTablesCommand;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.PopulateTablesCommand;
 
 import java.util.Scanner;
 
 @Component
-public class UserInteraction {
+public class UserInteraction implements CommandLineRunner {
 
     private static final String EXIT = "exit";
     private static final String INCORRECT_INPUT = "Incorrect input";
-    private static CommandDefendant commandDefendant;
-    private static CommandHolder commandHolder;
+    private CommandDefendant commandDefendant;
+    private CommandHolder commandHolder;
+    private CreateTablesCommand createTablesCommand;
+    private PopulateTablesCommand populateTablesCommand;
 
     @Autowired
-    public UserInteraction(CommandDefendant commandDefendant, CommandHolder commandHolder) {
+    public UserInteraction(CommandDefendant commandDefendant, CommandHolder commandHolder,
+                           CreateTablesCommand createTablesCommand, PopulateTablesCommand populateTablesCommand) {
         this.commandDefendant = commandDefendant;
         this.commandHolder = commandHolder;
+        this.createTablesCommand = createTablesCommand;
+        this.populateTablesCommand = populateTablesCommand;
     }
 
-    public static void runApp() {
+    @Override
+    public void run(String... args) {
+        createTablesCommand.execute(commandHolder);
+        populateTablesCommand.execute(commandHolder);
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print('>');
