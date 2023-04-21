@@ -32,7 +32,7 @@ public class UserInteraction implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        createTablesCommand.execute(commandHolder);
+        //createTablesCommand.execute(commandHolder);
         populateTablesCommand.execute(commandHolder);
         Scanner scanner = new Scanner(System.in);
         while (true) {
