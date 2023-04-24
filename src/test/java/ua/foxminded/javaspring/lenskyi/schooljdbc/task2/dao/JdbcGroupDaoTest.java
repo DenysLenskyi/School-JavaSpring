@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +20,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class JdbcCourseDaoTest {
+public class JdbcGroupDaoTest {
 
-    private static final String INIT_TABLE = """
+    private static final String INIT_TABLES = """
             CREATE SCHEMA IF NOT EXISTS school;
-            CREATE TABLE IF NOT EXISTS school.course (
+            CREATE TABLE IF NOT EXISTS school.group (
                 ID SERIAL PRIMARY KEY,
-                NAME TEXT,
-                DESCRIPTION TEXT
+                NAME TEXT
+            );
+            CREATE TABLE IF NOT EXISTS school.student (
+                ID SERIAL PRIMARY KEY,
+                GROUP_ID INT,
+                FIRST_NAME TEXT,
+                LAST_NAME TEXT,
+                CONSTRAINT GROUP_ID_FK
+                FOREIGN KEY (GROUP_ID)
+                REFERENCES school.group (ID)
             );
             """;
 
-    private JdbcCourseDao jdbcCourseDao;
+    private JdbcGroupDao jdbcGroupDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -42,29 +50,19 @@ public class JdbcCourseDaoTest {
 
     @BeforeEach
     void setUp() {
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        jdbcCourseDao.jdbcTemplate.execute(INIT_TABLE);
+        jdbcGroupDao = new JdbcGroupDao(jdbcTemplate);
+        jdbcGroupDao.jdbcTemplate.execute(INIT_TABLES);
     }
 
     @Test
     void addCoursesTest() {
-        Course math = new Course(1, "Math", "smth about numbers");
-        Course english = new Course(2, "Eng", "smth about letters");
-        List<Course> courses = new ArrayList<>();
-        courses.add(math);
-        courses.add(english);
-        jdbcCourseDao.addCourses(courses);
-        List<Map<String, Object>> test = jdbcCourseDao.jdbcTemplate.queryForList("select * from school.course");
+        Group first = new Group(1, "first");
+        Group second = new Group(2, "second");
+        List<Group> groups = new ArrayList<>();
+        groups.add(first);
+        groups.add(second);
+        jdbcGroupDao.addGroups(groups);
+        List<Map<String, Object>> test = jdbcGroupDao.jdbcTemplate.queryForList("select * from school.group");
         assertEquals(2, test.size());
-    }
-
-    @Test
-    void findCourseByIdTest() {
-        jdbcCourseDao.executeQuery("insert into school.course (id, name, description) " +
-                "values (1, 'Math', 'smth about numbers');");
-        Course test = jdbcCourseDao.findCourseById(1);
-        assertEquals(1, test.getId());
-        assertEquals("Math", test.getName());
-        assertEquals("smth about numbers", test.getDescription());
     }
 }

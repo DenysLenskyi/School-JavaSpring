@@ -1,3 +1,10 @@
+DROP TABLE IF EXISTS school.course CASCADE;
+DROP TABLE IF EXISTS school.group CASCADE;
+DROP TABLE IF EXISTS school.student CASCADE;
+DROP TABLE IF EXISTS school.student_course CASCADE;
+
+DROP SCHEMA IF EXISTS school CASCADE;
+
 CREATE SCHEMA IF NOT EXISTS school;
 SET search_path TO school, public;
 
@@ -19,7 +26,7 @@ CREATE TABLE IF NOT EXISTS school.student (
     FOREIGN KEY (GROUP_ID)
     REFERENCES school.group (ID)
 );
-CREATE TABLE IF NOT EXISTS school.student_course (
+CREATE TABLE IF NOT EXISTS school.student_courses (
     STUDENT_ID INT,
     COURSE_ID INT,
     CONSTRAINT STUDENT_ID_FK
