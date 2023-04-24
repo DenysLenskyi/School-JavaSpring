@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandDefendant;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.CreateTablesCommand;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.PopulateTablesCommand;
 
 import java.util.Scanner;
@@ -18,21 +17,18 @@ public class UserInteraction implements CommandLineRunner {
     private static final String INCORRECT_INPUT = "Incorrect input";
     private CommandDefendant commandDefendant;
     private CommandHolder commandHolder;
-    private CreateTablesCommand createTablesCommand;
     private PopulateTablesCommand populateTablesCommand;
 
     @Autowired
     public UserInteraction(CommandDefendant commandDefendant, CommandHolder commandHolder,
-                           CreateTablesCommand createTablesCommand, PopulateTablesCommand populateTablesCommand) {
+                           PopulateTablesCommand populateTablesCommand) {
         this.commandDefendant = commandDefendant;
         this.commandHolder = commandHolder;
-        this.createTablesCommand = createTablesCommand;
         this.populateTablesCommand = populateTablesCommand;
     }
 
     @Override
     public void run(String... args) {
-        //createTablesCommand.execute(commandHolder);
         populateTablesCommand.execute(commandHolder);
         Scanner scanner = new Scanner(System.in);
         while (true) {
