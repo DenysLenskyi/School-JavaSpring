@@ -12,19 +12,9 @@ public class JdbcBaseDao {
 
     protected JdbcTemplate jdbcTemplate;
 
-    protected List<String> availableCourseNames = new ArrayList<>();
-
     @Autowired
     public JdbcBaseDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public List<String> getAvailableCourseNames() {
-        return availableCourseNames;
-    }
-
-    public void setAvailableCourseNames(List<String> availableCourseNames) {
-        this.availableCourseNames = availableCourseNames;
     }
 
     public void executeQuery(String sql) {

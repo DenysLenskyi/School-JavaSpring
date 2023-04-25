@@ -15,6 +15,7 @@ public class JdbcCourseDao extends JdbcBaseDao {
 
     public static final String INSERT_INTO_COURSE = "insert into school.course (name, description) values (?, ?);";
     public static final String FIND_BY_ID = "select * from school.course where id = ?";
+    public static final String FIND_BY_NAME = "select * from school.course where name =?";
 
     @Autowired
     public JdbcCourseDao(JdbcTemplate jdbcTemplate) {
@@ -30,10 +31,19 @@ public class JdbcCourseDao extends JdbcBaseDao {
                     ps.setString(1, course.getName());
                     ps.setString(2, course.getDescription());
                 });
-        courses.forEach(course -> availableCourseNames.add(course.getName()));
     }
 
     public Course findCourseById(int courseId) {
         return jdbcTemplate.queryForObject(FIND_BY_ID, new CourseRowMapper(), courseId);
+    }
+
+    public boolean isCourseExists(String courseName) {
+        Course course = null;
+        course = jdbcTemplate.queryForObject(FIND_BY_NAME, new CourseRowMapper(), courseName);
+        if (course != null) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

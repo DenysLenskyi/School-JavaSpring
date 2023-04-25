@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @JdbcTest
@@ -66,5 +67,12 @@ public class JdbcCourseDaoTest {
         assertEquals(1, test.getId());
         assertEquals("Math", test.getName());
         assertEquals("smth about numbers", test.getDescription());
+    }
+
+    @Test
+    void isCourseExistsTest() {
+        jdbcCourseDao.executeQuery("insert into school.course (id, name, description) " +
+                "values (1, 'Math', 'smth about numbers');");
+        assertTrue(jdbcCourseDao.isCourseExists("Math"));
     }
 }
