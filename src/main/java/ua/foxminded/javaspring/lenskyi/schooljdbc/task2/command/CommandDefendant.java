@@ -12,21 +12,25 @@ public class CommandDefendant {
 
     private static final String INFO = "info";
     private static final String FIND_COURSE_BY_ID = "find_course";
+    private static final String FIND_GROUPS = "find_groups";
 
     private Map<String, Command> commandCode = new HashMap<>();
     private InfoCommand infoCommand;
     private UnknownCommand unknownCommand;
     private FindCourseByIdCommand findCourseByIdCommand;
+    private FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand;
 
 
     @Autowired
     public CommandDefendant(
             InfoCommand infoCommand,
             UnknownCommand unknownCommand,
-            FindCourseByIdCommand findCourseByIdCommand) {
+            FindCourseByIdCommand findCourseByIdCommand,
+            FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand) {
         this.infoCommand = infoCommand;
         this.unknownCommand = unknownCommand;
         this.findCourseByIdCommand = findCourseByIdCommand;
+        this.findGroupsWithNumStudentsCommand = findGroupsWithNumStudentsCommand;
     }
 
     public Command getCommandByCode(String code) {
@@ -41,5 +45,6 @@ public class CommandDefendant {
     private void setCommandCode() {
         commandCode.put(INFO, infoCommand);
         commandCode.put(FIND_COURSE_BY_ID, findCourseByIdCommand);
+        commandCode.put(FIND_GROUPS, findGroupsWithNumStudentsCommand);
     }
 }

@@ -14,10 +14,11 @@ public class InfoCommand implements Command {
                exits the app
             find_course --course_id={value}
                prints course's info by course id number (1-10)
-               """;
-    /*
             find_groups --num_students={value}
                prints groups with less or equal student's number (max 30)
+               """;
+    /*
+
             find_students_course --course_name={value}
                example: --course_name=History - prints students enrolled to course
             add_student --group_id={value} --first_name={value} --last_name={value}

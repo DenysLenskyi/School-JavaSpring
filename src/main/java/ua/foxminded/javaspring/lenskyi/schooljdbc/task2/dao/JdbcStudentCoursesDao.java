@@ -25,7 +25,7 @@ public class JdbcStudentCoursesDao extends JdbcBaseDao {
     @Transactional
     public void addStudents(List<StudentCourses> studentCoursesList) {
         studentCoursesList.forEach(sc -> {
-            sc.getCoursesId().forEach(courseId -> {
+            sc.getCourseIds().forEach(courseId -> {
                 jdbcTemplate.execute(INSERT_INTO_STUDENT_COURSES, new PreparedStatementCallback<Boolean>() {
                     @Override
                     public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException {

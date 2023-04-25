@@ -5,7 +5,7 @@ import java.util.Set;
 public class StudentCourses {
 
     private int studentId;
-    private Set<Integer> coursesId;
+    private Set<Integer> courseIds;
 
     public int getStudentId() {
         return studentId;
@@ -15,12 +15,11 @@ public class StudentCourses {
         this.studentId = studentId;
     }
 
-    public Set<Integer> getCoursesId() {
-        return coursesId;
+    public Set<Integer> getCourseIds() {
+        return courseIds;
     }
 
-    public void setCoursesId(Set<Integer> coursesId) {
-        this.coursesId = coursesId;
+    public void setCourseIds(Set<Integer> courseIds) {
+        this.courseIds = courseIds;
     }
 }
-

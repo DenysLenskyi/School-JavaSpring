@@ -43,7 +43,7 @@ public class JdbcCourseDaoTest {
     @BeforeEach
     void setUp() {
         jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        jdbcCourseDao.jdbcTemplate.execute(INIT_TABLE);
+        jdbcCourseDao.executeQuery(INIT_TABLE);
     }
 
     @Test

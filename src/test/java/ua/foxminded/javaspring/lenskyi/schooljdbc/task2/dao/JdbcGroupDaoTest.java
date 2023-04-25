@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @JdbcTest
@@ -39,6 +40,16 @@ public class JdbcGroupDaoTest {
             );
             """;
 
+    private static final String TEST_INSERT = """
+            insert into school.group (id, name) values
+            (1, 'AA-00'),
+            (2, 'BB-00');
+            insert into school.student (id, group_id, first_name, last_name) values
+            (1, 1, 'Mark','Markson'),
+            (2, 2, 'Mark2','Mark2son'),
+            (3, 2, 'Mark2','Mark2son');
+            """;
+
     private JdbcGroupDao jdbcGroupDao;
 
     @Autowired
@@ -51,7 +62,7 @@ public class JdbcGroupDaoTest {
     @BeforeEach
     void setUp() {
         jdbcGroupDao = new JdbcGroupDao(jdbcTemplate);
-        jdbcGroupDao.jdbcTemplate.execute(INIT_TABLES);
+        jdbcGroupDao.executeQuery(INIT_TABLES);
     }
 
     @Test
@@ -64,5 +75,12 @@ public class JdbcGroupDaoTest {
         jdbcGroupDao.addGroups(groups);
         List<Map<String, Object>> test = jdbcGroupDao.jdbcTemplate.queryForList("select * from school.group");
         assertEquals(2, test.size());
+    }
+
+    @Test
+    void findGroupsWithNumStudentsTest() {
+        jdbcGroupDao.executeQuery(TEST_INSERT);
+        List<Group> groups = jdbcGroupDao.findGroupsWithNumStudents(2);
+        assertTrue(groups.size() == 2);
     }
 }

@@ -126,7 +126,7 @@ public class RandomDataCreator {
                 coursesForStudent.add(secureRandom.nextInt(minCourseId, maxCourseId + 1));
                 numCourses--;
             }
-            studentCourse.setCoursesId(coursesForStudent);
+            studentCourse.setCourseIds(coursesForStudent);
             studentsCourses.add(studentCourse);
         }
         return studentsCourses;

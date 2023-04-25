@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.GroupRowMapper;
 
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -13,6 +14,14 @@ import java.util.List;
 public class JdbcGroupDao extends JdbcBaseDao {
 
     public static final String INSERT_INTO_GROUP = "insert into school.group (id, name) values (default, ?)";
+    private static final String FIND_GROUPS_WITH_LESS_OR_EQUAL_NUM_STUDENTS_QUERY = """
+            select group_id, school.group.name group_name
+                from school.student
+                inner join school.group on group_id = school.group.id
+                group by name, group_id
+                having count(student.id) <=?;
+                """;
+
 
     @Autowired
     public JdbcGroupDao(JdbcTemplate jdbcTemplate) {
@@ -27,5 +36,9 @@ public class JdbcGroupDao extends JdbcBaseDao {
                 (PreparedStatement ps, Group group) -> {
                     ps.setString(1, group.getName());
                 });
+    }
+
+    public List<Group> findGroupsWithNumStudents (int numStudents) {
+        return jdbcTemplate.query(FIND_GROUPS_WITH_LESS_OR_EQUAL_NUM_STUDENTS_QUERY, new GroupRowMapper(), numStudents);
     }
 }
