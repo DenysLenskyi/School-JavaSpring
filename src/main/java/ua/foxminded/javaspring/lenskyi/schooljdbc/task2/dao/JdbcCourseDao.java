@@ -30,6 +30,7 @@ public class JdbcCourseDao extends JdbcBaseDao {
                     ps.setString(1, course.getName());
                     ps.setString(2, course.getDescription());
                 });
+        courses.forEach(course -> availableCourseNames.add(course.getName()));
     }
 
     public Course findCourseById(int courseId) {
