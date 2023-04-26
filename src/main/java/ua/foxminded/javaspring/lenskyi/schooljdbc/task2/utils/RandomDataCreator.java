@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourses;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -113,21 +113,26 @@ public class RandomDataCreator {
         }
     }
 
-    public List<StudentCourses> generateStudentCourseRelation(int numStudents) {
-        List<StudentCourses> studentsCourses = new ArrayList<>();
+    public List<StudentCourse> generateStudentCourseRelation(int numStudents) {
+        List<StudentCourse> studentsCourses = new ArrayList<>();
         int minCourseId = 1;
         int maxCourseId = 10;
         for (int i = 1; i <= numStudents; i++) {
-            StudentCourses studentCourse = new StudentCourses();
-            studentCourse.setStudentId(i);
+
+
             int numCourses = secureRandom.nextInt(1, 4);
             Set<Integer> coursesForStudent = new HashSet<>();
             while (numCourses > 0) {
                 coursesForStudent.add(secureRandom.nextInt(minCourseId, maxCourseId + 1));
                 numCourses--;
             }
-            studentCourse.setCourseIds(coursesForStudent);
-            studentsCourses.add(studentCourse);
+            int finalI = i;
+            coursesForStudent.forEach(courseId -> {
+                StudentCourse studentCourse = new StudentCourse();
+                studentCourse.setStudentId(finalI);
+                studentCourse.setCourseId(courseId);
+                studentsCourses.add(studentCourse);
+            });
         }
         return studentsCourses;
     }

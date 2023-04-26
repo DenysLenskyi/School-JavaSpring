@@ -42,7 +42,6 @@ public class UserInteraction implements CommandLineRunner {
                 commandDefendant.getCommandByCode(commandHolder.getCommandName()).execute(commandHolder);
             } catch (Exception e) {
                 System.out.println(INCORRECT_INPUT);
-                e.printStackTrace();
             }
         }
         scanner.close();

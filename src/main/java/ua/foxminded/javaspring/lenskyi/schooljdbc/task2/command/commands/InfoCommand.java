@@ -22,18 +22,11 @@ public class InfoCommand implements Command {
                adds new student; group id should be 0-10
             delete_student --student_id={value}
                deletes student by student id
-               """;
-    /*
-
-
-
             add_student_course --student_id={value} --course_name={value}
                adds student to course
             delete_student_course --student_id={value} --course_name={value}
                deletes student from course
-            """;
-
-     */
+               """;
 
     @Override
     public void execute(CommandHolder commandHolder) {

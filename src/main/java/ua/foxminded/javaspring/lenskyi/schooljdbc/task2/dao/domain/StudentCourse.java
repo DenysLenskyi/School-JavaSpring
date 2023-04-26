@@ -1,11 +1,9 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain;
 
-import java.util.Set;
-
-public class StudentCourses {
+public class StudentCourse {
 
     private int studentId;
-    private Set<Integer> courseIds;
+    private int courseId;
 
     public int getStudentId() {
         return studentId;
@@ -15,11 +13,11 @@ public class StudentCourses {
         this.studentId = studentId;
     }
 
-    public Set<Integer> getCourseIds() {
-        return courseIds;
+    public int getCourseId() {
+        return courseId;
     }
 
-    public void setCourseIds(Set<Integer> courseIds) {
-        this.courseIds = courseIds;
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
     }
 }

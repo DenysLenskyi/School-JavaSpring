@@ -7,8 +7,6 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCoursesDao;
 
-import java.sql.SQLException;
-
 @Component
 public class FindStudentsEnrolledToCourseCommand implements Command {
 

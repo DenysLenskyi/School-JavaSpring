@@ -37,6 +37,6 @@ public class PopulateTablesCommand implements Command {
         jdbcCourseDao.addCourses(randomDataCreator.getCoursesFromResources());
         jdbcGroupDao.addGroups(randomDataCreator.generateGroups(numGroups));
         jdbcStudentDao.addStudents(randomDataCreator.generateStudents(numStudents));
-        jdbcStudentCoursesDao.addStudents(randomDataCreator.generateStudentCourseRelation(numStudents));
+        jdbcStudentCoursesDao.addStudentsCourses(randomDataCreator.generateStudentCourseRelation(numStudents));
     }
 }
