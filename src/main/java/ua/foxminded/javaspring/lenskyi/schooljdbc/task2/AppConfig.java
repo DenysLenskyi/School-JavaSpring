@@ -3,6 +3,8 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.FileReader;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -21,5 +23,15 @@ public class AppConfig {
             e.printStackTrace();
         }
         return rand;
+    }
+
+    @Bean
+    public FileReader fileReader() {
+        return new FileReader();
+    }
+
+    @Bean
+    public RandomDataCreator randomDataCreator() {
+        return new RandomDataCreator(fileReader(), rand());
     }
 }

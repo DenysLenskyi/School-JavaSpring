@@ -1,6 +1,5 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
 public class FileReader {
 
     public String readFile(String fileName) {
