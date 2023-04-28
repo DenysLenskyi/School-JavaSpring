@@ -4,4 +4,8 @@ docker run --name=spring-jdbc-docker-school -d -e POSTGRES_DB=spring-jdbc-docker
 
 Command to build image:
 
-docker build -t school.jar .
+docker build -t school .
+
+Command to run image:
+
+docker run --net=host school

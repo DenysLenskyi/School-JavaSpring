@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   API:
-    image: 'school.jar'
+    image: 'school'
     ports:
       - "8080:8080"
     depends_on:
