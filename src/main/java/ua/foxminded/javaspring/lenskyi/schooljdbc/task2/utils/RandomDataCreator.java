@@ -19,7 +19,7 @@ public class RandomDataCreator {
     private FileReader reader;
     private Random secureRandom;
     @Value("${filename.names}")
-    private String NAMES_TXT;
+    private String NAMES;
     @Value("${filename.courses}")
     private String COURSES;
 
@@ -27,6 +27,14 @@ public class RandomDataCreator {
     public RandomDataCreator(FileReader reader, Random secureRandom) {
         this.reader = reader;
         this.secureRandom = secureRandom;
+    }
+
+    public void setNAMES(String NAMES) {
+        this.NAMES = NAMES;
+    }
+
+    public void setCOURSES(String COURSES) {
+        this.COURSES = COURSES;
     }
 
     public List<Group> generateGroups(int numGroups) {
@@ -67,7 +75,7 @@ public class RandomDataCreator {
 
     public List<Student> generateStudents(int numStudents) {
         List<Student> students = new ArrayList<>();
-        String[] names = reader.readFile(NAMES_TXT).split(SEMICOLON);
+        String[] names = reader.readFile(NAMES).split(SEMICOLON);
         for (int i = 1; i <= numStudents; i++) {
             Student student = new Student();
             student.setId(i);

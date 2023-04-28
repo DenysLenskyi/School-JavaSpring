@@ -50,6 +50,10 @@ public class CommandDefendant {
         this.removeStudentFromCourseCommand = removeStudentFromCourseCommand;
     }
 
+    public Map<String, Command> getCommandCode() {
+        return commandCode;
+    }
+
     public Command getCommandByCode(String code) {
         setCommandCode();
         if (commandCode.containsKey(code)) {
