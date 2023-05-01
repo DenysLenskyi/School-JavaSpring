@@ -17,14 +17,21 @@ public class FindCourseByIdCommand implements Command {
 
     private JdbcCourseDao jdbcCourseDao;
 
+    private Course course;
+
     @Autowired
     public FindCourseByIdCommand(JdbcCourseDao jdbcCourseDao) {
         this.jdbcCourseDao = jdbcCourseDao;
     }
 
+    public Course getCourse() {
+        return course;
+    }
+
     @Override
     public void execute(CommandHolder commandHolder) {
         Course course = jdbcCourseDao.findCourseById(commandHolder.getCourseId());
+        this.course = course;
         String str = String.format(
                 FORMAT, COURSE_ID, course.getId(), COURSE_NAME, course.getName(),
                 COURSE_DESCRIPTION, course.getDescription());
