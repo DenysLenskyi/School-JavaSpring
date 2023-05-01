@@ -1,27 +1,24 @@
-version: '3.1'
-services:
-  API:
-    image: 'school'
-    ports:
-      - "8080:8080"
-    depends_on:
-      PostgreSQL:
-        condition: service_healthy
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://PostgreSQL:5432/spring-jdbc-docker-school
-      - SPRING_DATASOURCE_USERNAME=lenskyi
-      - SPRING_DATASOURCE_PASSWORD=lenskyi
+version: '3.9'
 
-  PostgreSQL:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: school_jdbc_lenskyi_app_cont
+    depends_on:
+      - db
     environment:
-      - POSTGRES_PASSWORD=lenskyi
-      - POSTGRES_USER=lenskyi
-      - POSTGRES_DB=spring-jdbc-docker-school
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready --dbname=spring-jdbc-docker-school --username=lenskyi"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://school_jdbc_lenskyi_db_cont:5432/school_db
+    stdin_open: true
+    tty: true
+
+  db:
+    image: postgres:15-alpine
+    container_name: school_jdbc_lenskyi_db_cont
+    environment:
+      POSTGRES_USER: lenskyi
+      POSTGRES_PASSWORD: lenskyi
+      POSTGRES_DB: school_db
+    ports:
+      - '5432:5432'
