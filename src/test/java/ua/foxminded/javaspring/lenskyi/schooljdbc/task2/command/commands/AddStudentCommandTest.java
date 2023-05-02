@@ -10,27 +10,27 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class FindCourseByIdCommandTest {
+class AddStudentCommandTest {
 
-    private static final String SETUP_TABLE_FOR_TEST = """
+    private static final String INIT_TABLES = """
+            DROP SCHEMA IF EXISTS school CASCADE;
             CREATE SCHEMA IF NOT EXISTS school;
-            CREATE TABLE IF NOT EXISTS school.course (
+            CREATE TABLE IF NOT EXISTS school.student (
                 ID SERIAL PRIMARY KEY,
-                NAME TEXT,
-                DESCRIPTION TEXT
-            );
-            INSERT INTO school.course (name, description) VALUES ('Math', 'Math');
+                GROUP_ID INT,
+                FIRST_NAME TEXT,
+                LAST_NAME TEXT);
             """;
 
-    private FindCourseByIdCommand findCourseByIdCommand;
-    private JdbcCourseDao jdbcCourseDao;
+    private AddStudentCommand addStudentCommand;
+    private JdbcStudentDao jdbcStudentDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -41,16 +41,18 @@ public class FindCourseByIdCommandTest {
 
     @BeforeEach
     void setUp() {
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        findCourseByIdCommand = new FindCourseByIdCommand(jdbcCourseDao);
-        jdbcCourseDao.executeQuery(SETUP_TABLE_FOR_TEST);
+        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
+        addStudentCommand = new AddStudentCommand(jdbcStudentDao);
+        jdbcStudentDao.executeQuery(INIT_TABLES);
     }
 
     @Test
-    void findCourseByIdTest() {
+    void addStudentTest() {
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setCourseId(1);
-        findCourseByIdCommand.execute(commandHolder);
-        assertEquals("Math", findCourseByIdCommand.getCourse().getName());
+        commandHolder.setGroupId(1);
+        commandHolder.setStudentFirstName("Mark");
+        commandHolder.setStudentLastName("Mark");
+        addStudentCommand.execute(commandHolder);
+        assertTrue(jdbcStudentDao.isStudentExists(1));
     }
 }

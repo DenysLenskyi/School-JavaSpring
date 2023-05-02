@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class JdbcStudentDaoTest {
+class JdbcStudentDaoTest {
 
     private static final String INIT_TABLES = """
             DROP SCHEMA IF EXISTS school CASCADE;
@@ -44,7 +44,7 @@ public class JdbcStudentDaoTest {
     @BeforeEach
     void setUp() {
         jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        jdbcTemplate.execute(INIT_TABLES);
+        jdbcStudentDao.executeQuery(INIT_TABLES);
     }
 
     @Test

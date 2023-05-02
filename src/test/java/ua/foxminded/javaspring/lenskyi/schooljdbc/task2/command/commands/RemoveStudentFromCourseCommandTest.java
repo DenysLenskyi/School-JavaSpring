@@ -1,4 +1,4 @@
-package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
+package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,19 +9,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCoursesDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class JdbcStudentCourseDaoTest {
+class RemoveStudentFromCourseCommandTest {
 
     private static final String INIT_TABLES = """
             DROP SCHEMA IF EXISTS school CASCADE;
@@ -51,7 +49,10 @@ class JdbcStudentCourseDaoTest {
             );
             """;
 
+    private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
     private JdbcStudentCoursesDao jdbcStudentCoursesDao;
+    private JdbcStudentDao jdbcStudentDao;
+    private JdbcCourseDao jdbcCourseDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -63,6 +64,10 @@ class JdbcStudentCourseDaoTest {
     @BeforeEach
     void setUp() {
         jdbcStudentCoursesDao = new JdbcStudentCoursesDao(jdbcTemplate);
+        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
+        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
+        removeStudentFromCourseCommand = new RemoveStudentFromCourseCommand(jdbcStudentCoursesDao,
+                jdbcStudentDao, jdbcCourseDao);
         jdbcStudentCoursesDao.executeQuery(INIT_TABLES);
         jdbcStudentCoursesDao.executeQuery("insert into school.course (name, description) values ('Math','Math');");
         jdbcStudentCoursesDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
@@ -70,42 +75,12 @@ class JdbcStudentCourseDaoTest {
     }
 
     @Test
-    void addStudentsCoursesTest() {
-        StudentCourse studentCourse = new StudentCourse();
-        studentCourse.setStudentId(1);
-        studentCourse.setCourseId(1);
-        List<StudentCourse> studentsCourses = new ArrayList<>();
-        studentsCourses.add(studentCourse);
-        jdbcStudentCoursesDao.addStudentsCourses(studentsCourses);
-        List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student_course");
-        assertTrue(test.size() == 1);
-    }
-
-    @Test
-    void addStudentToCourseTest() {
-        jdbcStudentCoursesDao.addStudentToCourse(1,"Math");
-        List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student_course");
-        assertTrue(test.size() == 1);
-    }
-
-    @Test
-    void isStudentEnrolledToCourseTest() {
-        jdbcStudentCoursesDao.addStudentToCourse(1,"Math");
-        assertTrue(jdbcStudentCoursesDao.isStudentEnrolledToCourse(1,"Math"));
-    }
-
-    @Test
-    void getStudentsFromCourse() {
-        jdbcStudentCoursesDao.addStudentToCourse(1,"Math");
-        List<Student> students = jdbcStudentCoursesDao.getStudentsEnrolledToCourse("Math");
-        assertTrue(students.size() == 1);
-    }
-
-    @Test
-    void removeStudentFromCourseTest() {
-        jdbcStudentCoursesDao.addStudentToCourse(1,"Math");
-        jdbcStudentCoursesDao.removeStudentFromCourse(1, "Math");
-        List<Student> students = jdbcStudentCoursesDao.getStudentsEnrolledToCourse("Math");
-        assertTrue(students.size() == 0);
+    void removeStudentFromCourseCommandTest() {
+        jdbcStudentCoursesDao.executeQuery("insert into school.student_course (student_id, course_id) values (1,1)");
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setStudentId(1);
+        commandHolder.setCourseName("Math");
+        removeStudentFromCourseCommand.execute(commandHolder);
+        assertFalse(jdbcStudentCoursesDao.isStudentEnrolledToCourse(1, "Math"));
     }
 }

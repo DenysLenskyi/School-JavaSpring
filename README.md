@@ -9,3 +9,7 @@ docker build -t school .
 Command to run image:
 
 docker run --net=host school
+
+Run APP with Docker:
+1. docker compose up -d
+2. docker attach school_jdbc_lenskyi_app_cont

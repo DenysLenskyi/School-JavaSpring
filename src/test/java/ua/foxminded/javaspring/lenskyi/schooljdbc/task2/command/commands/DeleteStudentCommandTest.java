@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,27 +11,28 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class FindCourseByIdCommandTest {
+class DeleteStudentCommandTest {
 
-    private static final String SETUP_TABLE_FOR_TEST = """
+    private static final String INIT_TABLES = """
+            DROP SCHEMA IF EXISTS school CASCADE;
             CREATE SCHEMA IF NOT EXISTS school;
-            CREATE TABLE IF NOT EXISTS school.course (
+            CREATE TABLE IF NOT EXISTS school.student (
                 ID SERIAL PRIMARY KEY,
-                NAME TEXT,
-                DESCRIPTION TEXT
-            );
-            INSERT INTO school.course (name, description) VALUES ('Math', 'Math');
+                GROUP_ID INT,
+                FIRST_NAME TEXT,
+                LAST_NAME TEXT);
             """;
 
-    private FindCourseByIdCommand findCourseByIdCommand;
-    private JdbcCourseDao jdbcCourseDao;
+    private DeleteStudentCommand deleteStudentCommand;
+    private JdbcStudentDao jdbcStudentDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -41,16 +43,19 @@ public class FindCourseByIdCommandTest {
 
     @BeforeEach
     void setUp() {
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        findCourseByIdCommand = new FindCourseByIdCommand(jdbcCourseDao);
-        jdbcCourseDao.executeQuery(SETUP_TABLE_FOR_TEST);
+        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
+        deleteStudentCommand = new DeleteStudentCommand(jdbcStudentDao);
+        jdbcStudentDao.executeQuery(INIT_TABLES);
     }
 
     @Test
-    void findCourseByIdTest() {
+    void deleteStudentTest() {
+        jdbcStudentDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
+                " values (1, 'Mark', 'Mark')");
+        assertTrue(jdbcStudentDao.isStudentExists(1));
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setCourseId(1);
-        findCourseByIdCommand.execute(commandHolder);
-        assertEquals("Math", findCourseByIdCommand.getCourse().getName());
+        commandHolder.setStudentId(1);
+        deleteStudentCommand.execute(commandHolder);
+        assertFalse(jdbcStudentDao.isStudentExists(1));
     }
 }
