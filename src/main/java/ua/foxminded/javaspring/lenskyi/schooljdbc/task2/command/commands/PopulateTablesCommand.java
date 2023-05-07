@@ -6,7 +6,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCoursesDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
@@ -16,14 +16,14 @@ public class PopulateTablesCommand implements Command {
     private JdbcCourseDao jdbcCourseDao;
     private JdbcGroupDao jdbcGroupDao;
     private JdbcStudentDao jdbcStudentDao;
-    private JdbcStudentCoursesDao jdbcStudentCoursesDao;
+    private JdbcStudentCourseDao jdbcStudentCoursesDao;
     private RandomDataCreator randomDataCreator;
     private int numGroups = 10;
     private int numStudents = 200;
 
     @Autowired
     public PopulateTablesCommand(JdbcCourseDao jdbcCourseDao, JdbcGroupDao jdbcGroupDao,
-                                 JdbcStudentDao jdbcStudentDao, JdbcStudentCoursesDao jdbcStudentCoursesDao,
+                                 JdbcStudentDao jdbcStudentDao, JdbcStudentCourseDao jdbcStudentCoursesDao,
                                  RandomDataCreator randomDataCreator) {
         this.jdbcCourseDao = jdbcCourseDao;
         this.jdbcGroupDao = jdbcGroupDao;

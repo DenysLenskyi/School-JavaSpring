@@ -38,12 +38,8 @@ public class JdbcCourseDao extends JdbcBaseDao {
     }
 
     public boolean isCourseExists(String courseName) {
-        Course course = null;
+        Course course;
         course = jdbcTemplate.queryForObject(FIND_BY_NAME, new CourseRowMapper(), courseName);
-        if (course != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return course != null ? true : false;
     }
 }

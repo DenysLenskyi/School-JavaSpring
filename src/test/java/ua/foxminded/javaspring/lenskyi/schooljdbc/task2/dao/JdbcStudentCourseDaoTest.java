@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -21,37 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql({"/test_schema.sql"})
 class JdbcStudentCourseDaoTest {
 
-    private static final String INIT_TABLES = """
-            DROP SCHEMA IF EXISTS school CASCADE;
-            CREATE SCHEMA school;
-            CREATE TABLE IF NOT EXISTS school.course (
-                ID SERIAL PRIMARY KEY,
-                NAME TEXT,
-                DESCRIPTION TEXT
-            );
-            CREATE TABLE IF NOT EXISTS school.student (
-                ID SERIAL PRIMARY KEY,
-                GROUP_ID INT,
-                FIRST_NAME TEXT,
-                LAST_NAME TEXT
-            );
-            CREATE TABLE IF NOT EXISTS school.student_course (
-                STUDENT_ID INT,
-                COURSE_ID INT,
-                CONSTRAINT STUDENT_ID_FK
-                FOREIGN KEY (STUDENT_ID)
-                REFERENCES school.student (ID)
-                ON DELETE CASCADE,
-                CONSTRAINT COURSE_ID_FK
-                FOREIGN KEY (COURSE_ID)
-                REFERENCES school.course (ID)
-                ON DELETE CASCADE
-            );
-            """;
-
-    private JdbcStudentCoursesDao jdbcStudentCoursesDao;
+    private JdbcStudentCourseDao jdbcStudentCoursesDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -62,9 +36,9 @@ class JdbcStudentCourseDaoTest {
 
     @BeforeEach
     void setUp() {
-        jdbcStudentCoursesDao = new JdbcStudentCoursesDao(jdbcTemplate);
-        jdbcStudentCoursesDao.executeQuery(INIT_TABLES);
+        jdbcStudentCoursesDao = new JdbcStudentCourseDao(jdbcTemplate);
         jdbcStudentCoursesDao.executeQuery("insert into school.course (name, description) values ('Math','Math');");
+        jdbcStudentCoursesDao.executeQuery("insert into school.group (name) values ('AA-00')");
         jdbcStudentCoursesDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
                 " values(1, 'Mark','Mark');");
     }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -18,24 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql({"/test_schema.sql"})
 class FindGroupsWithNumStudentsCommandTest {
-
-    private static final String INIT_TABLES = """
-            CREATE SCHEMA IF NOT EXISTS school;
-            CREATE TABLE IF NOT EXISTS school.group (
-                ID SERIAL PRIMARY KEY,
-                NAME TEXT
-            );
-            CREATE TABLE IF NOT EXISTS school.student (
-                ID SERIAL PRIMARY KEY,
-                GROUP_ID INT,
-                FIRST_NAME TEXT,
-                LAST_NAME TEXT,
-                CONSTRAINT GROUP_ID_FK
-                FOREIGN KEY (GROUP_ID)
-                REFERENCES school.group (ID)
-            );
-            """;
 
     private static final String TEST_INSERT = """
             insert into school.group (id, name) values
@@ -62,7 +47,6 @@ class FindGroupsWithNumStudentsCommandTest {
     void setUp() {
         jdbcGroupDao = new JdbcGroupDao(jdbcTemplate);
         findGroupsWithNumStudentsCommand = new FindGroupsWithNumStudentsCommand(jdbcGroupDao);
-        jdbcGroupDao.executeQuery(INIT_TABLES);
         jdbcGroupDao.executeQuery(TEST_INSERT);
     }
 

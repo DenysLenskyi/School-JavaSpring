@@ -4,18 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 @Repository
-public class JdbcStudentCoursesDao extends JdbcBaseDao {
+public class JdbcStudentCourseDao extends JdbcBaseDao {
 
     public static final String INSERT_INTO_STUDENT_COURSES =
             "insert into school.student_course (student_id, course_id) values (?,?)";
@@ -44,11 +42,10 @@ public class JdbcStudentCoursesDao extends JdbcBaseDao {
             """;
 
     @Autowired
-    public JdbcStudentCoursesDao(JdbcTemplate jdbcTemplate) {
+    public JdbcStudentCourseDao(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
     }
 
-    @Transactional
     public void addStudentsCourses(List<StudentCourse> studentCourseList) {
         jdbcTemplate.batchUpdate(INSERT_INTO_STUDENT_COURSES,
                 studentCourseList,
@@ -66,32 +63,26 @@ public class JdbcStudentCoursesDao extends JdbcBaseDao {
     public boolean isStudentEnrolledToCourse(int studentId, String courseName) {
         List<Map<String, Object>> studentCourse =
                 jdbcTemplate.queryForList(SELECT_BY_ID_AND_COURSE_NAME, studentId, courseName);
-        if (studentCourse.size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return !studentCourse.isEmpty();
     }
 
     public void addStudentToCourse(int studentId, String courseName) {
-        jdbcTemplate.execute(ADD_STUDENT_TO_COURSE, new PreparedStatementCallback<Boolean>() {
-            @Override
-            public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException {
-                ps.setInt(1, studentId);
-                ps.setString(2, courseName);
-                return ps.execute();
-            }
-        });
+        jdbcTemplate.execute(
+                ADD_STUDENT_TO_COURSE,
+                (PreparedStatementCallback<Boolean>) ps -> {
+                    ps.setInt(1, studentId);
+                    ps.setString(2, courseName);
+                    return ps.execute();
+                });
     }
 
     public void removeStudentFromCourse(int studentId, String courseName) {
-        jdbcTemplate.execute(DELETE_STUDENT_COURSE, new PreparedStatementCallback<Boolean>() {
-            @Override
-            public Boolean doInPreparedStatement(PreparedStatement ps) throws SQLException {
-                ps.setInt(1, studentId);
-                ps.setString(2, courseName);
-                return ps.execute();
-            }
-        });
+        jdbcTemplate.execute(
+                DELETE_STUDENT_COURSE,
+                (PreparedStatementCallback<Boolean>) ps -> {
+                    ps.setInt(1, studentId);
+                    ps.setString(2, courseName);
+                    return ps.execute();
+                });
     }
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCoursesDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
 
 import java.util.ArrayList;
@@ -23,13 +23,13 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
                                Physics, History, Finance, Sports, Etiquette.
             """;
 
-    private JdbcStudentCoursesDao jdbcStudentCoursesDao;
+    private JdbcStudentCourseDao jdbcStudentCoursesDao;
     private JdbcCourseDao jdbcCourseDao;
 
     private List<Student> listStudents = new ArrayList<>();
 
     @Autowired
-    public FindStudentsEnrolledToCourseCommand(JdbcStudentCoursesDao jdbcStudentCoursesDao, JdbcCourseDao jdbcCourseDao) {
+    public FindStudentsEnrolledToCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao, JdbcCourseDao jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }

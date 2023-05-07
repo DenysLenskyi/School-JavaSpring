@@ -23,15 +23,17 @@ public class AddStudentCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        try {
-            jdbcStudentDao.addStudent(commandHolder.getGroupId(),
-                    commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
-            System.out.println(STUDENT_ADDED);
-        } catch (Exception e) {
-            System.out.println(STUDENT_NOT_ADDED);
-        }
         if ((commandHolder.getGroupId() > maxGroupId) || (commandHolder.getGroupId() < 0)) {
             System.out.println(INCORRECT_GROUP_ID);
+            System.out.println(STUDENT_NOT_ADDED);
+        } else {
+            try {
+                jdbcStudentDao.addStudent(commandHolder.getGroupId(),
+                        commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
+                System.out.println(STUDENT_ADDED);
+            } catch (Exception e) {
+                System.out.println(STUDENT_NOT_ADDED);
+            }
         }
     }
 }

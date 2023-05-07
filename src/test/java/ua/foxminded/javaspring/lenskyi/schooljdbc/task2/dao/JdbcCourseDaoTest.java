@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -21,16 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class JdbcCourseDaoTest {
-
-    private static final String INIT_TABLE = """
-            CREATE SCHEMA IF NOT EXISTS school;
-            CREATE TABLE IF NOT EXISTS school.course (
-                ID SERIAL PRIMARY KEY,
-                NAME TEXT,
-                DESCRIPTION TEXT
-            );
-            """;
+@Sql({"/test_schema.sql"})
+class JdbcCourseDaoTest {
 
     private JdbcCourseDao jdbcCourseDao;
 
@@ -44,7 +37,6 @@ public class JdbcCourseDaoTest {
     @BeforeEach
     void setUp() {
         jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        jdbcCourseDao.executeQuery(INIT_TABLE);
     }
 
     @Test

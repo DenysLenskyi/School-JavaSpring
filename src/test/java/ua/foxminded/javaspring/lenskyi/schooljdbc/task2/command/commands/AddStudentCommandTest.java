@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -17,17 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql({"/test_schema.sql"})
 class AddStudentCommandTest {
-
-    private static final String INIT_TABLES = """
-            DROP SCHEMA IF EXISTS school CASCADE;
-            CREATE SCHEMA IF NOT EXISTS school;
-            CREATE TABLE IF NOT EXISTS school.student (
-                ID SERIAL PRIMARY KEY,
-                GROUP_ID INT,
-                FIRST_NAME TEXT,
-                LAST_NAME TEXT);
-            """;
 
     private AddStudentCommand addStudentCommand;
     private JdbcStudentDao jdbcStudentDao;
@@ -43,7 +35,7 @@ class AddStudentCommandTest {
     void setUp() {
         jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
         addStudentCommand = new AddStudentCommand(jdbcStudentDao);
-        jdbcStudentDao.executeQuery(INIT_TABLES);
+        jdbcStudentDao.executeQuery("insert into school.group (name) values ('AA-00')");
     }
 
     @Test
