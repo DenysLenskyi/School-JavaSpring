@@ -34,15 +34,15 @@ public class RemoveStudentFromCourseCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (Boolean.FALSE.equals(jdbcStudentDao.isStudentExists(commandHolder.getStudentId()))) {
+        if (!(jdbcStudentDao.isStudentExists(commandHolder.getStudentId()))) {
             System.out.println(WRONG_STUDENT_ID);
             return;
         }
-        if (Boolean.FALSE.equals(jdbcCourseDao.isCourseExists(commandHolder.getCourseName()))) {
+        if (!(jdbcCourseDao.isCourseExists(commandHolder.getCourseName()))) {
             System.out.println(WRONG_COURSE_NAME);
             return;
         }
-        if (Boolean.FALSE.equals(jdbcStudentCoursesDao.isStudentEnrolledToCourse(commandHolder.getStudentId(),
+        if (!(jdbcStudentCoursesDao.isStudentEnrolledToCourse(commandHolder.getStudentId(),
                 commandHolder.getCourseName()))) {
             System.out.println(STUDENT_ALREADY_REMOVED);
         } else {
