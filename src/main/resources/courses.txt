@@ -1,0 +1,10 @@
+Math - Learn basic math operations;
+English - How to write and speak, spell;
+Biologic - Live organism knowledge;
+Geography - Learn countries;
+Chemistry - Learn how to create potions;
+Physics - Basic nature science;
+History - Myths and fairytale;
+Finance - Teaching about safe and spend money;
+Sports - Sport games;
+Etiquette - How to be gentle with speaking;
