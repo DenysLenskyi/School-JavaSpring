@@ -1,14 +1,15 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class JdbcStudentDao extends JdbcBaseDao {
@@ -62,8 +63,12 @@ public class JdbcStudentDao extends JdbcBaseDao {
                 });
     }
 
-    public Boolean isStudentExists(int studentId) {
-        List<Map<String, Object>> student = jdbcTemplate.queryForList(FIND_STUDENT_BY_ID, studentId);
-        return !student.isEmpty();
+    public Boolean doesStudentExist(int studentId) {
+        try {
+            jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, new StudentRowMapper(), studentId);
+            return true;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
     }
 }

@@ -45,6 +45,6 @@ class AddStudentCommandTest {
         commandHolder.setStudentFirstName("Mark");
         commandHolder.setStudentLastName("Mark");
         addStudentCommand.execute(commandHolder);
-        assertTrue(jdbcStudentDao.isStudentExists(1));
+        assertTrue(jdbcStudentDao.doesStudentExist(1));
     }
 }

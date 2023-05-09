@@ -18,7 +18,7 @@ public class JdbcStudentCourseDao extends JdbcBaseDao {
     public static final String INSERT_INTO_STUDENT_COURSES =
             "insert into school.student_course (student_id, course_id) values (?,?)";
     private static final String FIND_STUDENTS_ENROLLED_TO_COURSE_QUERY = """
-                        select distinct s.id, first_name, last_name
+                        select distinct s.id, s.group_id, first_name, last_name
                             from school.student_course s_c
                             inner join school.course c on course_id = c.id
                             inner join school.student s on s_c.student_id = s.id

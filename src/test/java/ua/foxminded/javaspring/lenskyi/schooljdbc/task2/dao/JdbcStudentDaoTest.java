@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @JdbcTest
@@ -76,6 +76,7 @@ class JdbcStudentDaoTest {
         jdbcStudentDao.addStudent(1, "Mark", "Mark");
         jdbcStudentDao.addStudent(1, "Mark", "Mark");
         jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        assertTrue(jdbcStudentDao.isStudentExists(1));
+        assertTrue(jdbcStudentDao.doesStudentExist(1));
+        assertFalse(jdbcStudentDao.doesStudentExist(5000));
     }
 }

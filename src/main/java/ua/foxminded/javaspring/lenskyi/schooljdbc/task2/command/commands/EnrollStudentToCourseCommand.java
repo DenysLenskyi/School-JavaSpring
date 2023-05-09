@@ -35,7 +35,7 @@ public class EnrollStudentToCourseCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (!(jdbcStudentDao.isStudentExists(commandHolder.getStudentId()))) {
+        if (!(jdbcStudentDao.doesStudentExist(commandHolder.getStudentId()))) {
             System.out.println(WRONG_STUDENT_ID);
             return;
         }

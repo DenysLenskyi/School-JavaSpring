@@ -44,10 +44,10 @@ class DeleteStudentCommandTest {
     void deleteStudentTest() {
         jdbcStudentDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
                 " values (1, 'Mark', 'Mark')");
-        assertTrue(jdbcStudentDao.isStudentExists(1));
+        assertTrue(jdbcStudentDao.doesStudentExist(1));
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(1);
         deleteStudentCommand.execute(commandHolder);
-        assertFalse(jdbcStudentDao.isStudentExists(1));
+        assertFalse(jdbcStudentDao.doesStudentExist(1));
     }
 }
