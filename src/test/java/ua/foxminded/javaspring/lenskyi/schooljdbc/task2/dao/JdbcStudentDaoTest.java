@@ -42,7 +42,7 @@ class JdbcStudentDaoTest {
     @Sql({"/test_schema.sql"})
     void addStudentsTest() {
         List<Student> students = new ArrayList<>();
-        Student mark = new Student(1, 1, "Mark", "Mark");
+        Student mark = new Student(1, 1L, "Mark", "Mark");
         students.add(mark);
         jdbcStudentDao.addStudents(students);
         List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
@@ -52,9 +52,9 @@ class JdbcStudentDaoTest {
     @Test
     @Sql({"/test_schema.sql"})
     void addStudentTest() {
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
+        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
+        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
+        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
         List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
         assertTrue(test.size() == 3);
     }
@@ -62,9 +62,9 @@ class JdbcStudentDaoTest {
     @Test
     @Sql({"/test_schema.sql"})
     void deleteStudentTest() {
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
+        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
+        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
+        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
         jdbcStudentDao.deleteStudent(3);
         List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
         assertTrue(test.size() == 2);
@@ -73,9 +73,9 @@ class JdbcStudentDaoTest {
     @Test
     @Sql({"/test_schema.sql"})
     void isStudentExistsTest() {
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1, "Mark", "Mark");
+        jdbcStudentDao.addStudent(Long.valueOf(1), "Mark", "Mark");
+        jdbcStudentDao.addStudent(Long.valueOf(1), "Mark", "Mark");
+        jdbcStudentDao.addStudent(Long.valueOf(1), "Mark", "Mark");
         assertTrue(jdbcStudentDao.doesStudentExist(1));
         assertFalse(jdbcStudentDao.doesStudentExist(5000));
     }

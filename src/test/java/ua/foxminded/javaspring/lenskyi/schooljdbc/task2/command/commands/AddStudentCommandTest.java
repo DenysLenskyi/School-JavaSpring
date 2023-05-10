@@ -41,7 +41,7 @@ class AddStudentCommandTest {
     @Test
     void addStudentTest() {
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(1);
+        commandHolder.setGroupId(Long.valueOf(1));
         commandHolder.setStudentFirstName("Mark");
         commandHolder.setStudentLastName("Mark");
         addStudentCommand.execute(commandHolder);

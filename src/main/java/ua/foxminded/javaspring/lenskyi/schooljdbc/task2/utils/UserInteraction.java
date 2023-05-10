@@ -32,8 +32,8 @@ public class UserInteraction implements CommandLineRunner {
         populateTablesCommand.execute(commandHolder);
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
-            System.out.print('>');
             String userInput = scanner.nextLine();
+            System.out.print('>');
             if (EXIT.equals(userInput)) {
                 break;
             }

@@ -9,6 +9,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.sql.PreparedStatement;
+import java.sql.Types;
 import java.util.List;
 
 @Repository
@@ -29,24 +30,24 @@ public class JdbcStudentDao extends JdbcBaseDao {
                 students,
                 200,
                 (PreparedStatement ps, Student student) -> {
-                    if (student.getGroupId() == 0) {
-                        ps.setNull(1, student.getGroupId());
+                    if (student.getGroupId() == null) {
+                        ps.setNull(1, Types.NULL);
                     } else {
-                        ps.setInt(1, student.getGroupId());
+                        ps.setLong(1, student.getGroupId());
                     }
                     ps.setString(2, student.getFirstName());
                     ps.setString(3, student.getLastName());
                 });
     }
 
-    public void addStudent(int groupId, String firstName, String lastName) {
+    public void addStudent(Long groupId, String firstName, String lastName) {
         jdbcTemplate.execute(
                 INSERT_INTO_STUDENT,
                 (PreparedStatementCallback<Boolean>) ps -> {
-                    if (groupId == 0) {
-                        ps.setNull(1, 0);
+                    if (groupId == null) {
+                        ps.setNull(1, Types.NULL);
                     } else {
-                        ps.setInt(1, groupId);
+                        ps.setLong(1, groupId);
                     }
                     ps.setString(2, firstName);
                     ps.setString(3, lastName);
