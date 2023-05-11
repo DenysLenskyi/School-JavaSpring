@@ -2,11 +2,12 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 
-@Component
+@Service
 public class AddStudentCommand implements Command {
 
     private static final String STUDENT_ADDED = "Student added";
@@ -19,6 +20,10 @@ public class AddStudentCommand implements Command {
     @Autowired
     public AddStudentCommand(JdbcStudentDao jdbcStudentDao) {
         this.jdbcStudentDao = jdbcStudentDao;
+    }
+
+    public JdbcStudentDao getJdbcStudentDao() {
+        return jdbcStudentDao;
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -49,7 +48,6 @@ class JdbcGroupDaoTest {
     }
 
     @Test
-    @Sql({"/test_schema.sql"})
     void addCoursesTest() {
         Group first = new Group(1, "first");
         Group second = new Group(2, "second");
@@ -62,7 +60,6 @@ class JdbcGroupDaoTest {
     }
 
     @Test
-    @Sql({"/test_schema.sql"})
     void findGroupsWithNumStudentsTest() {
         jdbcGroupDao.executeQuery(TEST_INSERT);
         List<Group> groups = jdbcGroupDao.findGroupsWithNumStudents(2);

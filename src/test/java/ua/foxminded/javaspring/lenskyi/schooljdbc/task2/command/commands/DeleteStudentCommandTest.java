@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -20,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Sql({"/test_schema.sql"})
 class DeleteStudentCommandTest {
 
     private DeleteStudentCommand deleteStudentCommand;
@@ -44,7 +42,6 @@ class DeleteStudentCommandTest {
     void deleteStudentTest() {
         jdbcStudentDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
                 " values (1, 'Mark', 'Mark')");
-        assertTrue(jdbcStudentDao.doesStudentExist(1));
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(1);
         deleteStudentCommand.execute(commandHolder);

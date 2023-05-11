@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +35,25 @@ class JdbcStudentDaoTest {
     @BeforeEach
     void setUp() {
         jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        jdbcStudentDao.executeQuery("insert into school.group (name) values ('AA-00')");
     }
 
     @Test
-    @Sql({"/test_schema.sql"})
+    void deleteStudentTest() {
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        List<Student> students = jdbcTemplate.query(
+                "select * from school.student", new StudentRowMapper()
+        );
+        jdbcStudentDao.deleteStudent(students.get(0).getId());
+        List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
+        assertEquals(2, test.size());
+    }
+
+    @Test
     void addStudentsTest() {
         List<Student> students = new ArrayList<>();
-        Student mark = new Student(1, 1L, "Mark", "Mark");
+        Student mark = new Student(1, null, "Mark", "Mark");
         students.add(mark);
         jdbcStudentDao.addStudents(students);
         List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
@@ -50,33 +61,23 @@ class JdbcStudentDaoTest {
     }
 
     @Test
-    @Sql({"/test_schema.sql"})
     void addStudentTest() {
-        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
         List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
         assertTrue(test.size() == 3);
     }
 
     @Test
-    @Sql({"/test_schema.sql"})
-    void deleteStudentTest() {
-        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
-        jdbcStudentDao.addStudent(1L, "Mark", "Mark");
-        jdbcStudentDao.deleteStudent(3);
-        List<Map<String, Object>> test = jdbcTemplate.queryForList("select * from school.student;");
-        assertTrue(test.size() == 2);
-    }
-
-    @Test
-    @Sql({"/test_schema.sql"})
-    void isStudentExistsTest() {
-        jdbcStudentDao.addStudent(Long.valueOf(1), "Mark", "Mark");
-        jdbcStudentDao.addStudent(Long.valueOf(1), "Mark", "Mark");
-        jdbcStudentDao.addStudent(Long.valueOf(1), "Mark", "Mark");
-        assertTrue(jdbcStudentDao.doesStudentExist(1));
+    void doesStudentExistTest() {
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        jdbcStudentDao.addStudent(null, "Mark", "Mark");
+        List<Student> students = jdbcTemplate.query(
+                "select * from school.student", new StudentRowMapper()
+        );
+        assertTrue(jdbcStudentDao.doesStudentExist(students.get(0).getId()));
         assertFalse(jdbcStudentDao.doesStudentExist(5000));
     }
 }

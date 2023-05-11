@@ -6,19 +6,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Sql({"/test_schema.sql"})
 class AddStudentCommandTest {
 
     private AddStudentCommand addStudentCommand;
@@ -45,6 +47,9 @@ class AddStudentCommandTest {
         commandHolder.setStudentFirstName("Mark");
         commandHolder.setStudentLastName("Mark");
         addStudentCommand.execute(commandHolder);
-        assertTrue(jdbcStudentDao.doesStudentExist(1));
+        List<Student> students = jdbcTemplate.query(
+                "select * from school.student", new StudentRowMapper()
+        );
+        assertTrue(students.size() == 1);
     }
 }
