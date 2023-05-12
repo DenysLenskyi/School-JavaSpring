@@ -2,12 +2,11 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 
-@Service
+@Component
 public class AddStudentCommand implements Command {
 
     private static final String STUDENT_ADDED = "Student added";
@@ -22,23 +21,15 @@ public class AddStudentCommand implements Command {
         this.jdbcStudentDao = jdbcStudentDao;
     }
 
-    public JdbcStudentDao getJdbcStudentDao() {
-        return jdbcStudentDao;
-    }
-
     @Override
     public void execute(CommandHolder commandHolder) {
         if ((commandHolder.getGroupId() > maxGroupId) || (commandHolder.getGroupId() < 0)) {
             System.out.println(INCORRECT_GROUP_ID);
             System.out.println(STUDENT_NOT_ADDED);
         } else {
-            try {
-                jdbcStudentDao.addStudent(commandHolder.getGroupId(),
-                        commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
-                System.out.println(STUDENT_ADDED);
-            } catch (Exception e) {
-                System.out.println(STUDENT_NOT_ADDED);
-            }
+            jdbcStudentDao.addStudent(commandHolder.getGroupId(),
+                    commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
+            System.out.println(STUDENT_ADDED);
         }
     }
 }

@@ -1,51 +1,48 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.when;
 
-@Testcontainers
-@JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@SpringBootTest(classes = FindGroupsWithNumStudentsCommandTest.class)
 class FindGroupsWithNumStudentsCommandTest {
 
-    private static final String TEST_INSERT = """
-            insert into school.group (id, name) values
-            (1, 'AA-00'),
-            (2, 'BB-00');
-            insert into school.student (id, group_id, first_name, last_name) values
-            (1, 1, 'Mark','Markson'),
-            (2, 2, 'Mark2','Mark2son'),
-            (3, 2, 'Mark2','Mark2son');
-            """;
-
+    private final PrintStream standardOut = System.out;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     private FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand;
-
+    @MockBean
     private JdbcGroupDao jdbcGroupDao;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
 
     @BeforeEach
     void setUp() {
-        jdbcGroupDao = new JdbcGroupDao(jdbcTemplate);
+        System.setOut(new PrintStream(outputStreamCaptor));
         findGroupsWithNumStudentsCommand = new FindGroupsWithNumStudentsCommand(jdbcGroupDao);
-        jdbcGroupDao.executeQuery(TEST_INSERT);
+        Group group = new Group(1, "test");
+        List<Group> groups = new ArrayList<>();
+        groups.add(group);
+        when(jdbcGroupDao.findGroupsWithNumStudents(isA(Integer.class))).thenReturn(groups);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        System.setOut(standardOut);
     }
 
     @Test
@@ -53,6 +50,8 @@ class FindGroupsWithNumStudentsCommandTest {
         CommandHolder commandHolder = new CommandHolderBuilder();
         commandHolder.setNumStudents(1);
         findGroupsWithNumStudentsCommand.execute(commandHolder);
-        assertEquals(1, findGroupsWithNumStudentsCommand.getListGroups().size());
+        assertEquals("""
+                Groups with less or equal than 1 students
+                Group ID:  1 | Group name:  test""", outputStreamCaptor.toString().trim());
     }
 }

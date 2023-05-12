@@ -2,54 +2,38 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
-import java.util.List;
+import static org.mockito.Mockito.*;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-@Testcontainers
-@JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@SpringBootTest(classes = AddStudentCommand.class)
 class AddStudentCommandTest {
 
-    private AddStudentCommand addStudentCommand;
+    @MockBean
     private JdbcStudentDao jdbcStudentDao;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
+    private AddStudentCommand addStudentCommand;
 
     @BeforeEach
-    void setUp() {
-        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
+    void setup() {
         addStudentCommand = new AddStudentCommand(jdbcStudentDao);
-        jdbcStudentDao.executeQuery("insert into school.group (name) values ('AA-00')");
+        doNothing().when(jdbcStudentDao).addStudent(isA(Long.class), isA(String.class), isA(String.class));
     }
 
     @Test
     void addStudentTest() {
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(Long.valueOf(1));
+        commandHolder.setGroupId(1L);
         commandHolder.setStudentFirstName("Mark");
         commandHolder.setStudentLastName("Mark");
         addStudentCommand.execute(commandHolder);
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper()
-        );
-        assertTrue(students.size() == 1);
+        verify(jdbcStudentDao, times(1)).addStudent(
+                commandHolder.getGroupId(),
+                commandHolder.getStudentFirstName(),
+                commandHolder.getStudentLastName());
     }
 }

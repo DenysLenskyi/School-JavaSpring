@@ -2,57 +2,46 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.*;
 
-@Testcontainers
-@JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
+@SpringBootTest(classes = RemoveStudentFromCourseCommand.class)
 class RemoveStudentFromCourseCommandTest {
 
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
+    @MockBean
     private JdbcStudentCourseDao jdbcStudentCoursesDao;
+    @MockBean
     private JdbcStudentDao jdbcStudentDao;
+    @MockBean
     private JdbcCourseDao jdbcCourseDao;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
 
     @BeforeEach
     void setUp() {
-        jdbcStudentCoursesDao = new JdbcStudentCourseDao(jdbcTemplate);
-        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
         removeStudentFromCourseCommand = new RemoveStudentFromCourseCommand(jdbcStudentCoursesDao,
                 jdbcStudentDao, jdbcCourseDao);
-        jdbcStudentCoursesDao.executeQuery("insert into school.course (name, description) values ('Math','Math');");
-        jdbcStudentCoursesDao.executeQuery("insert into school.group (name) values ('AA-00')");
-        jdbcStudentCoursesDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
-                " values(1, 'Mark','Mark');");
+        when(jdbcCourseDao.isCourseExists(isA(String.class))).thenReturn(true);
+        when(jdbcStudentDao.doesStudentExist(isA(Integer.class))).thenReturn(true);
+        when(jdbcStudentCoursesDao.isStudentEnrolledToCourse(isA(Integer.class), isA(String.class)))
+                .thenReturn(true);
     }
 
     @Test
     void removeStudentFromCourseCommandTest() {
-        jdbcStudentCoursesDao.executeQuery("insert into school.student_course (student_id, course_id) values (1,1)");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(1);
         commandHolder.setCourseName("Math");
         removeStudentFromCourseCommand.execute(commandHolder);
-        assertFalse(jdbcStudentCoursesDao.isStudentEnrolledToCourse(1, "Math"));
+        verify(jdbcStudentCoursesDao, times(1))
+                .removeStudentFromCourse(1, "Math");
     }
 }
