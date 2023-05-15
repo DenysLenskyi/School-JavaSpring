@@ -2,6 +2,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandDefendant;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
@@ -11,6 +12,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.Populat
 import java.util.Scanner;
 
 @Component
+@Profile("!test")
 public class UserInteraction implements CommandLineRunner {
 
     private static final String EXIT = "exit";

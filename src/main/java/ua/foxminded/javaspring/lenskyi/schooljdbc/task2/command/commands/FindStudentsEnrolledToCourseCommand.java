@@ -30,7 +30,7 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (jdbcCourseDao.isCourseExists(commandHolder.getCourseName())) {
+        if (jdbcCourseDao.doesCourseExist(commandHolder.getCourseName())) {
             jdbcStudentCoursesDao.getStudentsEnrolledToCourse(commandHolder.getCourseName())
                     .stream()
                     .map(student -> String.format(FORMAT, STUDENT_ID, student.getId(),

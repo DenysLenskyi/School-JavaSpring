@@ -38,7 +38,7 @@ public class RemoveStudentFromCourseCommand implements Command {
             System.out.println(WRONG_STUDENT_ID);
             return;
         }
-        if (!(jdbcCourseDao.isCourseExists(commandHolder.getCourseName()))) {
+        if (!(jdbcCourseDao.doesCourseExist(commandHolder.getCourseName()))) {
             System.out.println(WRONG_COURSE_NAME);
             return;
         }

@@ -1,6 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,9 +38,12 @@ public class JdbcCourseDao extends JdbcBaseDao {
         return jdbcTemplate.queryForObject(FIND_BY_ID, new CourseRowMapper(), courseId);
     }
 
-    public boolean isCourseExists(String courseName) {
-        Course course;
-        course = jdbcTemplate.queryForObject(FIND_BY_NAME, new CourseRowMapper(), courseName);
-        return course != null ? true : false;
+    public boolean doesCourseExist(String courseName) {
+        try {
+            jdbcTemplate.queryForObject(FIND_BY_NAME, new CourseRowMapper(), courseName);
+            return true;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
     }
 }
