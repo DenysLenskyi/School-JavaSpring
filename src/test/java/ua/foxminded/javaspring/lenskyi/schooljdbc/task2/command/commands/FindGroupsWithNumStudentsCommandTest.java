@@ -5,10 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
@@ -26,21 +23,14 @@ class FindGroupsWithNumStudentsCommandTest {
 
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-    private FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand;
-    private JdbcGroupDao jdbcGroupDao;
-
     @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
+    private FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand;
+    @Autowired
+    private JdbcGroupDao jdbcGroupDao;
 
     @BeforeEach
     void setUp() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        jdbcGroupDao = new JdbcGroupDao(jdbcTemplate);
-        findGroupsWithNumStudentsCommand = new FindGroupsWithNumStudentsCommand(jdbcGroupDao);
     }
 
     @AfterEach
@@ -50,11 +40,14 @@ class FindGroupsWithNumStudentsCommandTest {
 
     @Test
     void findGroupsWithNumStudentsTest() {
+        //arranges
         CommandHolder commandHolder = new CommandHolderBuilder();
         commandHolder.setNumStudents(1);
         jdbcGroupDao.executeQuery("insert into school.student (group_id, first_name, last_name) values" +
                 "(1, 'Mark', 'Markson');");
+        //act
         findGroupsWithNumStudentsCommand.execute(commandHolder);
+        //asserts
         assertEquals("""
                 Groups with less or equal than 1 students
                 Group ID:  1 | Group name:  AA-00""", outputStreamCaptor.toString().trim());

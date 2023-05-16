@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
@@ -26,23 +24,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Testcontainers
 class DeleteStudentCommandTest {
 
-    private DeleteStudentCommand deleteStudentCommand;
-    private JdbcStudentDao jdbcStudentDao;
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    @Autowired
+    private DeleteStudentCommand deleteStudentCommand;
+    @Autowired
+    private JdbcStudentDao jdbcStudentDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
-
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        deleteStudentCommand = new DeleteStudentCommand(jdbcStudentDao);
     }
 
     @AfterEach
@@ -52,13 +46,16 @@ class DeleteStudentCommandTest {
 
     @Test
     void deleteStudentCorrectTest() {
+        //arranges
         List<Student> studentsBeforeDelete = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentsBeforeDelete.get(0).getId());
+        //act
         deleteStudentCommand.execute(commandHolder);
         List<Student> studentsAfterDelete = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
+        //asserts
         assertEquals("Student deleted", outputStreamCaptor.toString().trim());
         assertEquals(4, studentsAfterDelete.size());
         jdbcStudentDao.executeQuery("INSERT INTO school.student (group_id, first_name, last_name) VALUES\n" +
@@ -67,13 +64,16 @@ class DeleteStudentCommandTest {
 
     @Test
     void deleteStudentNoSuchStudentIdTest() {
+        //arranges
         List<Student> studentsBeforeDelete = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(1509375500);
+        //act
         deleteStudentCommand.execute(commandHolder);
         List<Student> studentsAfterDelete = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
+        //asserts
         assertEquals(studentsBeforeDelete.size(), studentsAfterDelete.size());
         assertEquals("Can't find this student id...", outputStreamCaptor.toString().trim());
     }

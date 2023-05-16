@@ -7,13 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
@@ -30,29 +26,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 class RemoveStudentFromCourseCommandTest {
 
+    private final static String expectedCourseName = "Math";
+    private final static String expectedIncorrectCourseName = "Wabalabubuduwoodoo";
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private JdbcCourseDao jdbcCourseDao;
-    private JdbcStudentDao jdbcStudentDao;
+    @Autowired
     private JdbcStudentCourseDao jdbcStudentCourseDao;
+    @Autowired
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
-
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
 
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        jdbcStudentCourseDao = new JdbcStudentCourseDao(jdbcTemplate);
-        removeStudentFromCourseCommand = new RemoveStudentFromCourseCommand(jdbcStudentCourseDao,
-                jdbcStudentDao, jdbcCourseDao);
     }
 
     @AfterEach
@@ -62,6 +50,7 @@ class RemoveStudentFromCourseCommandTest {
 
     @Test
     void removeStudentFromCourseCommandCorrectTest() {
+        //arranges
         List<Student> students = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         int studentId = students.get(0).getId();
@@ -69,22 +58,27 @@ class RemoveStudentFromCourseCommandTest {
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName("Math");
+        commandHolder.setCourseName(expectedCourseName);
+        //act
         removeStudentFromCourseCommand.execute(commandHolder);
         List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Student removed from the course", outputStreamCaptor.toString().trim());
     }
 
     @Test
     void removeStudentFromCourseCommandIncorrectCourseTest() {
+        //arranges
         List<Student> students = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(students.get(0).getId());
-        commandHolder.setCourseName("ChakraFlowTeaching");
+        commandHolder.setCourseName(expectedIncorrectCourseName);
+        //act
         removeStudentFromCourseCommand.execute(commandHolder);
         List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong course name.\n" +
                 "Available courses: Math, English, Biologic, Geography, Chemistry,\n" +
@@ -93,11 +87,14 @@ class RemoveStudentFromCourseCommandTest {
 
     @Test
     void removeStudentFromCourseCommandIncorrectStudentTest() {
+        //arranges
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(666777);
-        commandHolder.setCourseName("Math");
+        commandHolder.setCourseName(expectedCourseName);
+        //act
         removeStudentFromCourseCommand.execute(commandHolder);
         List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong student's id. This id doesn't exist in the database",
                 outputStreamCaptor.toString().trim());
@@ -105,6 +102,7 @@ class RemoveStudentFromCourseCommandTest {
 
     @Test
     void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
+        //arranges
         List<Student> students = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         int studentId = students.get(0).getId();
@@ -112,10 +110,12 @@ class RemoveStudentFromCourseCommandTest {
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName("Math");
+        commandHolder.setCourseName(expectedCourseName);
+        //act
         removeStudentFromCourseCommand.execute(commandHolder);
         removeStudentFromCourseCommand.execute(commandHolder);
         List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Student removed from the course\n" +
                 "This student doesn't visit this course", outputStreamCaptor.toString().trim());

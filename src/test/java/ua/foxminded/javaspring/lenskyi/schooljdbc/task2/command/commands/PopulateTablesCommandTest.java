@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
@@ -22,7 +20,6 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,38 +34,38 @@ class PopulateTablesCommandTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
     private JdbcCourseDao jdbcCourseDao;
+    @Autowired
     private JdbcGroupDao jdbcGroupDao;
+    @Autowired
     private JdbcStudentDao jdbcStudentDao;
+    @Autowired
     private JdbcStudentCourseDao jdbcStudentCourseDao;
     private PopulateTablesCommand populateTablesCommand;
     private RandomDataCreator mockRandomDataCreator = Mockito.mock(RandomDataCreator.class);
 
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
-
     @BeforeEach
     void setup() {
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        jdbcGroupDao = new JdbcGroupDao(jdbcTemplate);
-        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        jdbcStudentCourseDao = new JdbcStudentCourseDao(jdbcTemplate);
-        populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao,jdbcGroupDao,jdbcStudentDao,
-                jdbcStudentCourseDao,mockRandomDataCreator);
+        populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, jdbcGroupDao, jdbcStudentDao,
+                jdbcStudentCourseDao, mockRandomDataCreator);
     }
 
     @Test
     void populateTablesCommandTest() {
+        //arranges
         setupRandomDataCreator();
         populateTablesCommand.execute(new CommandHolder());
+        //act
         List<Map<String, Object>> testCourses = jdbcTemplate.queryForList("select * from school.course");
-        assertEquals(2, testCourses.size());
         List<Map<String, Object>> testGroups = jdbcTemplate.queryForList("select * from school.group");
-        assertEquals(2, testGroups.size());
         List<Map<String, Object>> testStudents = jdbcTemplate.queryForList("select * from school.student");
+        List<Map<String, Object>> testStudentCourse = jdbcTemplate.queryForList(
+                "select * from school.student_course");
+        //asserts
+        assertEquals(2, testCourses.size());
+        assertEquals(2, testGroups.size());
         assertEquals(6, testStudents.size());
-        List<Map<String, Object>> testStudentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         assertEquals(1, testStudentCourse.size());
         jdbcCourseDao.executeQuery("delete from school.course where name = 'Sport';");
         jdbcGroupDao.executeQuery("delete from school.group where name = 'BB-00';");
@@ -77,25 +74,18 @@ class PopulateTablesCommandTest {
     }
 
     private void setupRandomDataCreator() {
-        Course course = new Course(2, "Sport", "Sport descr");
-        List<Course> courses = new ArrayList<>();
-        courses.add(course);
-        when(mockRandomDataCreator.getCoursesFromResources()).thenReturn(courses);
-        Group group = new Group(2, "BB-00");
-        List<Group> groups = new ArrayList<>();
-        groups.add(group);
-        when(mockRandomDataCreator.generateGroups(isA(Integer.class))).thenReturn(groups);
-        Student student = new Student(1, null, "Boris", "Jonsonuk");
-        List<Student> students = new ArrayList<>();
-        students.add(student);
-        when(mockRandomDataCreator.generateStudents(isA(Integer.class))).thenReturn(students);
+        List<Course> courses = List.of(new Course(2, "Sport", "Sport descr"));
+        List<Group> groups = List.of(new Group(2, "BB-00"));
+        List<Student> students = List.of(new Student(1, null, "Boris", "Jonsonuk"));
         StudentCourse studentCourse = new StudentCourse();
         List<Student> studentsWithRightId = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         studentCourse.setStudentId(studentsWithRightId.get(0).getId());
         studentCourse.setCourseId(2);
-        List<StudentCourse> studentCourses = new ArrayList<>();
-        studentCourses.add(studentCourse);
+        List<StudentCourse> studentCourses = List.of(studentCourse);
+        when(mockRandomDataCreator.getCoursesFromResources()).thenReturn(courses);
+        when(mockRandomDataCreator.generateGroups(isA(Integer.class))).thenReturn(groups);
+        when(mockRandomDataCreator.generateStudents(isA(Integer.class))).thenReturn(students);
         when(mockRandomDataCreator.generateStudentCourseRelation(isA(Integer.class))).thenReturn(studentCourses);
     }
 }
