@@ -1,6 +1,5 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,8 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
@@ -19,7 +16,6 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRow
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,23 +24,26 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 class AddStudentCommandTest {
 
-    private AddStudentCommand addStudentCommand;
-    private JdbcStudentDao jdbcStudentDao;
+    private final static Long expectedCorrectGroupId = 1L;
+    private final static Long expectedOutOfBoundsGroupId = 11L;
+    private final static Long expectedNegativeGroupId = -11L;
+    private final static String expectedFirstName10 = "Mark10";
+    private final static String expectedFirstName11 = "Mark11";
+    private final static String expectedFirstName12 = "Mark12";
+    private final static String expectedSecondName = "Markson";
+
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-
+    @Autowired
+    private AddStudentCommand addStudentCommand;
+    @Autowired
+    private JdbcStudentDao jdbcStudentDao;
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
 
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        jdbcStudentDao = new JdbcStudentDao(jdbcTemplate);
-        addStudentCommand = new AddStudentCommand(jdbcStudentDao);
     }
 
     @AfterEach
@@ -54,51 +53,56 @@ class AddStudentCommandTest {
 
     @Test
     void addStudentCorrectTest() {
+        //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(1L);
-        commandHolder.setStudentFirstName("Mark10");
-        commandHolder.setStudentLastName("Markson");
+        commandHolder.setGroupId(expectedCorrectGroupId);
+        commandHolder.setStudentFirstName(expectedFirstName10);
+        commandHolder.setStudentLastName(expectedSecondName);
+        //act
         addStudentCommand.execute(commandHolder);
-        Student student = jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark10';",
+        Student actualStudent = jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark10';",
                 new StudentRowMapper());
+        //asserts
         assertEquals("Student added", outputStreamCaptor.toString().trim());
-        assertEquals(1, student.getGroupId());
-        assertEquals("Mark10", student.getFirstName());
-        assertEquals("Markson", student.getLastName());
+        assertEquals(1, actualStudent.getGroupId());
+        assertEquals("Mark10", actualStudent.getFirstName());
+        assertEquals("Markson", actualStudent.getLastName());
         jdbcStudentDao.executeQuery("delete from school.student where first_name='Mark10'");
     }
 
     @Test
     void addStudentIncorrectGroupId11Test() {
+        //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(11L);
-        commandHolder.setStudentFirstName("Mark11");
-        commandHolder.setStudentLastName("Markson");
+        commandHolder.setGroupId(expectedOutOfBoundsGroupId);
+        commandHolder.setStudentFirstName(expectedFirstName11);
+        commandHolder.setStudentLastName(expectedSecondName);
+        //act
         addStudentCommand.execute(commandHolder);
+        //asserts
         assertEquals("Group id could be in range from 0 to 10\n" +
                 "Student not added, check your input", outputStreamCaptor.toString().trim());
-            try {
-                jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark11';",
-                        new StudentRowMapper());
-            } catch (EmptyResultDataAccessException e) {
-                assertTrue(e.getMessage().contains("Incorrect result size: expected 1, actual 0"));
-            }
+        Exception e = assertThrows(EmptyResultDataAccessException.class,
+                () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark11';",
+                        new StudentRowMapper()));
+        assertEquals("Incorrect result size: expected 1, actual 0", e.getMessage());
     }
 
     @Test
     void addStudentNegativeGroupIdTest() {
+        //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(-11L);
-        commandHolder.setStudentFirstName("Mark12");
-        commandHolder.setStudentLastName("Markson");
+        commandHolder.setGroupId(expectedNegativeGroupId);
+        commandHolder.setStudentFirstName(expectedFirstName12);
+        commandHolder.setStudentLastName(expectedSecondName);
+        //act
         addStudentCommand.execute(commandHolder);
+        //asserts
         assertEquals("Group id could be in range from 0 to 10\n" +
                 "Student not added, check your input", outputStreamCaptor.toString().trim());
-        try {
-            jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark12';",
-                    new StudentRowMapper());
-        } catch (EmptyResultDataAccessException e) {
-            assertTrue(e.getMessage().contains("Incorrect result size: expected 1, actual 0"));
-        }
+        Exception e = assertThrows(EmptyResultDataAccessException.class,
+                () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark12';",
+                        new StudentRowMapper()));
+        assertEquals("Incorrect result size: expected 1, actual 0", e.getMessage());
     }
 }
