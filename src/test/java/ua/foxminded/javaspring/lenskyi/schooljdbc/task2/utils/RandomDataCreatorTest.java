@@ -53,7 +53,6 @@ class RandomDataCreatorTest {
                 Arguments.of(8, "Sports"),
                 Arguments.of(9, "Etiquette")
         );
-
     }
 
     @Test

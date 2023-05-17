@@ -3,11 +3,11 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain;
 public class Student {
 
     private int id;
-    private int groupId;
+    private Long groupId;
     private String firstName;
     private String lastName;
 
-    public Student(int id, int groupId, String firstName, String lastName) {
+    public Student(int id, Long groupId, String firstName, String lastName) {
         this.id = id;
         this.groupId = groupId;
         this.firstName = firstName;
@@ -25,11 +25,11 @@ public class Student {
         this.id = id;
     }
 
-    public int getGroupId() {
+    public Long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(int groupId) {
+    public void setGroupId(Long groupId) {
         this.groupId = groupId;
     }
 

@@ -79,7 +79,7 @@ public class RandomDataCreator {
         for (int i = 1; i <= numStudents; i++) {
             Student student = new Student();
             student.setId(i);
-            student.setGroupId(0);
+            student.setGroupId(null);
             student.setFirstName(generateStudentFirstName(names));
             student.setLastName(generateStudentLastName(names));
             students.add(student);
@@ -111,7 +111,7 @@ public class RandomDataCreator {
                 break;
             } else {
                 while (randomNumOfStudentsForOneGroup > 0) {
-                    students.get((numStudentsToAssign) - 1).setGroupId(i);
+                    students.get((numStudentsToAssign) - 1).setGroupId(Long.valueOf(i));
                     randomNumOfStudentsForOneGroup--;
                     numStudentsToAssign--;
                 }

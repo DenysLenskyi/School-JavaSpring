@@ -6,10 +6,6 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class FindStudentsEnrolledToCourseCommand implements Command {
@@ -26,31 +22,22 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
     private JdbcStudentCourseDao jdbcStudentCoursesDao;
     private JdbcCourseDao jdbcCourseDao;
 
-    private List<Student> listStudents = new ArrayList<>();
-
     @Autowired
     public FindStudentsEnrolledToCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao, JdbcCourseDao jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }
 
-    public List<Student> getListStudents() {
-        return listStudents;
-    }
-
     @Override
     public void execute(CommandHolder commandHolder) {
-        try {
-            if (jdbcCourseDao.isCourseExists(commandHolder.getCourseName())) {
-                listStudents = jdbcStudentCoursesDao.getStudentsEnrolledToCourse(commandHolder.getCourseName());
-                listStudents
-                        .stream()
-                        .map(student -> String.format(FORMAT, STUDENT_ID, student.getId(),
-                                STUDENT_FULL_NAME, student.getFirstName(), student.getLastName()))
-                        .forEach(System.out::println);
-                System.out.println('\n');
-            }
-        } catch (Exception e) {
+        if (jdbcCourseDao.doesCourseExist(commandHolder.getCourseName())) {
+            jdbcStudentCoursesDao.getStudentsEnrolledToCourse(commandHolder.getCourseName())
+                    .stream()
+                    .map(student -> String.format(FORMAT, STUDENT_ID, student.getId(),
+                            STUDENT_FULL_NAME, student.getFirstName(), student.getLastName()))
+                    .forEach(System.out::println);
+            System.out.println('\n');
+        } else {
             System.out.println(DISCLAIMER_AFTER_WRONG_INPUT);
         }
     }

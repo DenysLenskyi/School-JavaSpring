@@ -1,56 +1,79 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ActiveProfiles("test")
+@SpringBootTest
 @Testcontainers
-@JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Sql({"/test_schema.sql"})
 class FindStudentsEnrolledToCourseCommandTest {
 
+    private static final String expectedCourseName = "Math";
+    private static final String expectedIncorrectCourseName = "Numerology";
+    private final PrintStream standardOut = System.out;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
+    @Autowired
     private FindStudentsEnrolledToCourseCommand findStudentsEnrolledToCourseCommand;
-    private JdbcCourseDao jdbcCourseDao;
-    private JdbcStudentCourseDao jdbcStudentCoursesDao;
+    @Autowired
+    private JdbcStudentCourseDao jdbcStudentCourseDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:15-alpine");
-
     @BeforeEach
     void setUp() {
-        jdbcStudentCoursesDao = new JdbcStudentCourseDao(jdbcTemplate);
-        jdbcCourseDao = new JdbcCourseDao(jdbcTemplate);
-        findStudentsEnrolledToCourseCommand = new FindStudentsEnrolledToCourseCommand(jdbcStudentCoursesDao, jdbcCourseDao);
-        jdbcStudentCoursesDao.executeQuery("insert into school.course (name, description) values ('Math','Math');");
-        jdbcStudentCoursesDao.executeQuery("insert into school.group (name) values ('AA-00')");
-        jdbcStudentCoursesDao.executeQuery("insert into school.student (group_id, first_name, last_name)" +
-                " values(1, 'Mark','Mark');");
-        jdbcStudentCoursesDao.executeQuery("insert into school.student_course (student_id, course_id)" +
-                " values(1, 1);");
+        System.setOut(new PrintStream(outputStreamCaptor));
+    }
+
+    @AfterEach
+    public void tearDown() {
+        System.setOut(standardOut);
     }
 
     @Test
-    void findStudentsEnrolledToCourseCommandTest() {
+    void findStudentsEnrolledToCourseCommandCorrectTest() {
+        //arranges
+        List<Student> students = jdbcTemplate.query(
+                "select * from school.student", new StudentRowMapper());
+        int studentId = students.get(0).getId();
+        jdbcStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
+                "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setCourseName("Math");
+        commandHolder.setCourseName(expectedCourseName);
+        //act
         findStudentsEnrolledToCourseCommand.execute(commandHolder);
-        assertEquals(1, findStudentsEnrolledToCourseCommand.getListStudents().size());
+        //asserts
+        assertEquals("Student ID: " + studentId +
+                " | Student name: Mark Markson", outputStreamCaptor.toString().trim());
+        jdbcStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
+    }
+
+    @Test
+    void findStudentsEnrolledToCourseCommandIncorrectCourseTest() {
+        //arranges
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setCourseName(expectedIncorrectCourseName);
+        //act
+        findStudentsEnrolledToCourseCommand.execute(commandHolder);
+        //asserts
+        assertEquals("Failed...\n" +
+                "Available courses: Math, English, Biologic, Geography, Chemistry,\n" +
+                "                   Physics, History, Finance, Sports, Etiquette.", outputStreamCaptor.toString().trim());
     }
 }

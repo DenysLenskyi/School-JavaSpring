@@ -29,7 +29,7 @@ public class CommandHolderBuilder extends CommandHolder {
                     commandHolder.setCourseName(keywordValue[1]);
                 } else if (commandKeyword.contains(GROUP_ID)) {
                     String[] keywordValue = commandKeyword.split(EQUAL);
-                    commandHolder.setGroupId(Integer.parseInt(keywordValue[1]));
+                    commandHolder.setGroupId(Long.parseLong(keywordValue[1]));
                 } else if (commandKeyword.contains(STUDENT_ID)) {
                     String[] keywordValue = commandKeyword.split(EQUAL);
                     commandHolder.setStudentId(Integer.parseInt(keywordValue[1]));

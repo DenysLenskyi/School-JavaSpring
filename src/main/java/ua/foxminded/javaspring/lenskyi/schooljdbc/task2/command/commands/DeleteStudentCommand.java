@@ -23,7 +23,7 @@ public class DeleteStudentCommand implements Command {
     @Override
     public void execute(CommandHolder commandHolder) {
         try {
-            if (jdbcStudentDao.isStudentExists(commandHolder.getStudentId())) {
+            if (jdbcStudentDao.doesStudentExist(commandHolder.getStudentId())) {
                 jdbcStudentDao.deleteStudent(commandHolder.getStudentId());
                 System.out.println(STUDENT_DELETED);
             } else {

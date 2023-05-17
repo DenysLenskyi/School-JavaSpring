@@ -9,7 +9,7 @@ public class CommandHolder {
     private int courseId;
     private int numStudents;
     private String courseName;
-    private int groupId;
+    private Long groupId;
     private String studentFirstName;
     private String studentLastName;
     private int studentId;
@@ -46,11 +46,11 @@ public class CommandHolder {
         this.courseName = courseName;
     }
 
-    public int getGroupId() {
+    public Long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(int groupId) {
+    public void setGroupId(Long groupId) {
         this.groupId = groupId;
     }
 
