@@ -1,5 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandDefendant;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.AddStudentCommand;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.PopulateTablesCommand;
 
 import java.util.Scanner;
@@ -17,6 +20,7 @@ public class UserInteraction implements CommandLineRunner {
 
     private static final String EXIT = "exit";
     private static final String INCORRECT_INPUT = "Incorrect input";
+    private final Logger log = LoggerFactory.getLogger(UserInteraction.class);
     private CommandDefendant commandDefendant;
     private CommandHolder commandHolder;
     private PopulateTablesCommand populateTablesCommand;
@@ -44,6 +48,7 @@ public class UserInteraction implements CommandLineRunner {
                 commandDefendant.getCommandByCode(commandHolder.getCommandName()).execute(commandHolder);
             } catch (Exception e) {
                 System.out.println(INCORRECT_INPUT);
+                log.error("Unexpected exception happened");
             }
         }
         scanner.close();

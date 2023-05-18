@@ -10,12 +10,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +33,11 @@ class AddStudentCommandTest {
     private final static String expectedFirstName11 = "Mark11";
     private final static String expectedFirstName12 = "Mark12";
     private final static String expectedSecondName = "Markson";
+    private final static String expectedSystemOutIfStudentAdded = "Student added";
+    private final static String expectedSystemOutIfNotAdded = "Group id could be in range from 0 to 10\n" +
+            "Student not added, check your input";
+    private final static String expectedExceptionMessageForEmptyResultDataAccess =
+            "Incorrect result size: expected 1, actual 0";
 
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -63,10 +70,10 @@ class AddStudentCommandTest {
         Student actualStudent = jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark10';",
                 new StudentRowMapper());
         //asserts
-        assertEquals("Student added", outputStreamCaptor.toString().trim());
-        assertEquals(1, actualStudent.getGroupId());
-        assertEquals("Mark10", actualStudent.getFirstName());
-        assertEquals("Markson", actualStudent.getLastName());
+        assertEquals(expectedSystemOutIfStudentAdded, outputStreamCaptor.toString().trim());
+        assertEquals(expectedCorrectGroupId, actualStudent.getGroupId());
+        assertEquals(expectedFirstName10, actualStudent.getFirstName());
+        assertEquals(expectedSecondName, actualStudent.getLastName());
         jdbcStudentDao.executeQuery("delete from school.student where first_name='Mark10'");
     }
 
@@ -80,12 +87,11 @@ class AddStudentCommandTest {
         //act
         addStudentCommand.execute(commandHolder);
         //asserts
-        assertEquals("Group id could be in range from 0 to 10\n" +
-                "Student not added, check your input", outputStreamCaptor.toString().trim());
+        assertEquals(expectedSystemOutIfNotAdded, outputStreamCaptor.toString().trim());
         Exception e = assertThrows(EmptyResultDataAccessException.class,
                 () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark11';",
                         new StudentRowMapper()));
-        assertEquals("Incorrect result size: expected 1, actual 0", e.getMessage());
+        assertEquals(expectedExceptionMessageForEmptyResultDataAccess, e.getMessage());
     }
 
     @Test
@@ -98,11 +104,20 @@ class AddStudentCommandTest {
         //act
         addStudentCommand.execute(commandHolder);
         //asserts
-        assertEquals("Group id could be in range from 0 to 10\n" +
-                "Student not added, check your input", outputStreamCaptor.toString().trim());
+        assertEquals(expectedSystemOutIfNotAdded, outputStreamCaptor.toString().trim());
         Exception e = assertThrows(EmptyResultDataAccessException.class,
                 () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark12';",
                         new StudentRowMapper()));
-        assertEquals("Incorrect result size: expected 1, actual 0", e.getMessage());
+        assertEquals(expectedExceptionMessageForEmptyResultDataAccess, e.getMessage());
+    }
+
+    @Test
+    void addStudentDataViolationTest() {
+        //arranges
+        AtomicReference<CommandHolder> commandHolder = new AtomicReference<>(new CommandHolder());
+        //asserts
+        Exception e = assertThrows(NumberFormatException.class,
+                () -> commandHolder.set(CommandHolderBuilder.buildCommandFromInputString(
+                        "add_student --group_id=test --first_name=dataViolationTest --last_name=test")));
     }
 }
