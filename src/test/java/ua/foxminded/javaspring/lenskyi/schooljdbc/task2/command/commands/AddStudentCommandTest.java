@@ -26,17 +26,17 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 class AddStudentCommandTest {
 
-    private final static Long expectedCorrectGroupId = 1L;
-    private final static Long expectedOutOfBoundsGroupId = 11L;
-    private final static Long expectedNegativeGroupId = -11L;
-    private final static String expectedFirstName10 = "Mark10";
-    private final static String expectedFirstName11 = "Mark11";
-    private final static String expectedFirstName12 = "Mark12";
-    private final static String expectedSecondName = "Markson";
-    private final static String expectedSystemOutIfStudentAdded = "Student added";
-    private final static String expectedSystemOutIfNotAdded = "Group id could be in range from 0 to 10\n" +
+    private final static Long EXPECTED_CORRECT_GROUP_ID = 1L;
+    private final static Long EXPECTED_OUT_OF_BOUNDS_GROUP_ID = 11L;
+    private final static Long EXPECTED_NEGATIVE_GROUP_ID = -11L;
+    private final static String EXPECTED_FIRST_NAME_10 = "Mark10";
+    private final static String EXPECTED_FIRST_NAME_11 = "Mark11";
+    private final static String EXPECTED_FIRST_NAME_12 = "Mark12";
+    private final static String EXPECTED_SECOND_NAME = "Markson";
+    private final static String EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED = "Student added";
+    private final static String EXPECTED_SYSTEM_OUT_IF_NOT_ADDED = "Group id could be in range from 0 to 10\n" +
             "Student not added, check your input";
-    private final static String expectedExceptionMessageForEmptyResultDataAccess =
+    private final static String INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0 =
             "Incorrect result size: expected 1, actual 0";
 
     private final PrintStream standardOut = System.out;
@@ -62,18 +62,18 @@ class AddStudentCommandTest {
     void addStudentCorrectTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(expectedCorrectGroupId);
-        commandHolder.setStudentFirstName(expectedFirstName10);
-        commandHolder.setStudentLastName(expectedSecondName);
+        commandHolder.setGroupId(EXPECTED_CORRECT_GROUP_ID);
+        commandHolder.setStudentFirstName(EXPECTED_FIRST_NAME_10);
+        commandHolder.setStudentLastName(EXPECTED_SECOND_NAME);
         //act
         addStudentCommand.execute(commandHolder);
         Student actualStudent = jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark10';",
                 new StudentRowMapper());
         //asserts
-        assertEquals(expectedSystemOutIfStudentAdded, outputStreamCaptor.toString().trim());
-        assertEquals(expectedCorrectGroupId, actualStudent.getGroupId());
-        assertEquals(expectedFirstName10, actualStudent.getFirstName());
-        assertEquals(expectedSecondName, actualStudent.getLastName());
+        assertEquals(EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED, outputStreamCaptor.toString().trim());
+        assertEquals(EXPECTED_CORRECT_GROUP_ID, actualStudent.getGroupId());
+        assertEquals(EXPECTED_FIRST_NAME_10, actualStudent.getFirstName());
+        assertEquals(EXPECTED_SECOND_NAME, actualStudent.getLastName());
         jdbcStudentDao.executeQuery("delete from school.student where first_name='Mark10'");
     }
 
@@ -81,43 +81,44 @@ class AddStudentCommandTest {
     void addStudentIncorrectGroupId11Test() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(expectedOutOfBoundsGroupId);
-        commandHolder.setStudentFirstName(expectedFirstName11);
-        commandHolder.setStudentLastName(expectedSecondName);
+        commandHolder.setGroupId(EXPECTED_OUT_OF_BOUNDS_GROUP_ID);
+        commandHolder.setStudentFirstName(EXPECTED_FIRST_NAME_11);
+        commandHolder.setStudentLastName(EXPECTED_SECOND_NAME);
         //act
         addStudentCommand.execute(commandHolder);
         //asserts
-        assertEquals(expectedSystemOutIfNotAdded, outputStreamCaptor.toString().trim());
+        assertEquals(EXPECTED_SYSTEM_OUT_IF_NOT_ADDED, outputStreamCaptor.toString().trim());
         Exception e = assertThrows(EmptyResultDataAccessException.class,
                 () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark11';",
                         new StudentRowMapper()));
-        assertEquals(expectedExceptionMessageForEmptyResultDataAccess, e.getMessage());
+        assertEquals(INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0, e.getMessage());
     }
 
     @Test
     void addStudentNegativeGroupIdTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setGroupId(expectedNegativeGroupId);
-        commandHolder.setStudentFirstName(expectedFirstName12);
-        commandHolder.setStudentLastName(expectedSecondName);
+        commandHolder.setGroupId(EXPECTED_NEGATIVE_GROUP_ID);
+        commandHolder.setStudentFirstName(EXPECTED_FIRST_NAME_12);
+        commandHolder.setStudentLastName(EXPECTED_SECOND_NAME);
         //act
         addStudentCommand.execute(commandHolder);
         //asserts
-        assertEquals(expectedSystemOutIfNotAdded, outputStreamCaptor.toString().trim());
+        assertEquals(EXPECTED_SYSTEM_OUT_IF_NOT_ADDED, outputStreamCaptor.toString().trim());
         Exception e = assertThrows(EmptyResultDataAccessException.class,
                 () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark12';",
                         new StudentRowMapper()));
-        assertEquals(expectedExceptionMessageForEmptyResultDataAccess, e.getMessage());
+        assertEquals(INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0, e.getMessage());
     }
 
     @Test
     void addStudentDataViolationTest() {
         //arranges
-        AtomicReference<CommandHolder> commandHolder = new AtomicReference<>(new CommandHolder());
+        CommandHolder commandHolder = CommandHolderBuilder.buildCommandFromInputString(
+                "add_student --group_id=CommandHolderSetGroupIdDataViolationTest --first_name=t --last_name=t");
         //asserts
-        Exception e = assertThrows(NumberFormatException.class,
-                () -> commandHolder.set(CommandHolderBuilder.buildCommandFromInputString(
-                        "add_student --group_id=test --first_name=dataViolationTest --last_name=test")));
+        assertNull(commandHolder.getGroupId());
+        Exception e = assertThrows(NullPointerException.class,
+                () -> addStudentCommand.execute(commandHolder));
     }
 }
