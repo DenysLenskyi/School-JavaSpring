@@ -14,7 +14,7 @@ public class AddStudentCommand implements Command {
     private static final String STUDENT_ADDED = "Student added";
     private static final String STUDENT_NOT_ADDED = "Student not added, check your input";
     private static final String INCORRECT_GROUP_ID = "Group id could be in range from 0 to 10";
-    private final Logger log = LoggerFactory.getLogger(AddStudentCommand.class);
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JdbcStudentDao jdbcStudentDao;
     private int maxGroupId = 10;

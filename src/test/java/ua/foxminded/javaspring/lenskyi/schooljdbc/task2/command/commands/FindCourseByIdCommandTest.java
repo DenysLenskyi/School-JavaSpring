@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
@@ -13,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -41,5 +43,14 @@ class FindCourseByIdCommandTest {
         findCourseByIdCommand.execute(commandHolder);
         assertEquals("Course ID:  1 | Course name:  Math | Description:  Math",
                 outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    void findCourseByIdDoesntExistTest() {
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setCourseId(100);
+        assertThrows(EmptyResultDataAccessException.class, () -> {
+            findCourseByIdCommand.execute(commandHolder);
+        });
     }
 }

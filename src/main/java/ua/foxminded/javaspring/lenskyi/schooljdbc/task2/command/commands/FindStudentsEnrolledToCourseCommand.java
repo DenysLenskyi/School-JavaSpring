@@ -1,5 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
@@ -18,6 +20,7 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
             Available courses: Math, English, Biologic, Geography, Chemistry,
                                Physics, History, Finance, Sports, Etiquette.
             """;
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JdbcStudentCourseDao jdbcStudentCoursesDao;
     private JdbcCourseDao jdbcCourseDao;
@@ -37,8 +40,10 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
                             STUDENT_FULL_NAME, student.getFirstName(), student.getLastName()))
                     .forEach(System.out::println);
             System.out.println('\n');
+            log.info("Command executed");
         } else {
             System.out.println(DISCLAIMER_AFTER_WRONG_INPUT);
+            log.warn("Course with name {} not present in database", commandHolder.getCourseName());
         }
     }
 }

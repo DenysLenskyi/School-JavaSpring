@@ -1,5 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
@@ -15,6 +17,7 @@ public class FindGroupsWithNumStudentsCommand implements Command {
     private static final String GROUP_NAME = "Group name: ";
     private static final String FORMAT = "%1$s %2$s | %3$s %4$s";
     private static final String DISCLAIMER_FORMAT = "%1$s %2$s %3$s";
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JdbcGroupDao jdbcGroupDao;
 
@@ -30,5 +33,6 @@ public class FindGroupsWithNumStudentsCommand implements Command {
                 .map(group -> String.format(FORMAT, GROUP_ID, group.getId(), GROUP_NAME, group.getName()))
                 .forEach(System.out::println);
         System.out.println('\n');
+        log.info("FindGroupsWithNumStudentsCommand executed");
     }
 }
