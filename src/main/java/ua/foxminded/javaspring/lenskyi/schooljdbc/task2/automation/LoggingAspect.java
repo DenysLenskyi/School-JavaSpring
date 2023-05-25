@@ -1,4 +1,4 @@
-package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command;
+package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.automation;
 
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
