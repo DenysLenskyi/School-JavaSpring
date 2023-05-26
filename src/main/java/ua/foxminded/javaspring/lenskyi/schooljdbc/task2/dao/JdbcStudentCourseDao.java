@@ -11,6 +11,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRow
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class JdbcStudentCourseDao extends JdbcBaseDao {
@@ -46,10 +47,10 @@ public class JdbcStudentCourseDao extends JdbcBaseDao {
         super(jdbcTemplate);
     }
 
-    public void addStudentsCourses(List<StudentCourse> studentCourseList) {
+    public void addStudentsCourses(Set<StudentCourse> studentCourseSet) {
         jdbcTemplate.batchUpdate(INSERT_INTO_STUDENT_COURSES,
-                studentCourseList,
-                studentCourseList.size(),
+                studentCourseSet,
+                studentCourseSet.size(),
                 (PreparedStatement ps, StudentCourse studentCourse) -> {
                     ps.setInt(1, studentCourse.getStudentId());
                     ps.setInt(2, studentCourse.getCourseId());

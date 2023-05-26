@@ -22,6 +22,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.isA;
@@ -82,7 +83,7 @@ class PopulateTablesCommandTest {
                 "select * from school.student", new StudentRowMapper());
         studentCourse.setStudentId(studentsWithRightId.get(0).getId());
         studentCourse.setCourseId(2);
-        List<StudentCourse> studentCourses = List.of(studentCourse);
+        Set<StudentCourse> studentCourses = Set.of(studentCourse);
         when(mockRandomDataCreator.getCoursesFromResources()).thenReturn(courses);
         when(mockRandomDataCreator.generateGroups(isA(Integer.class))).thenReturn(groups);
         when(mockRandomDataCreator.generateStudents(isA(Integer.class))).thenReturn(students);

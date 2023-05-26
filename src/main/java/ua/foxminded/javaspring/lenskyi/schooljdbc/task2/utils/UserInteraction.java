@@ -1,16 +1,19 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
+import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandCorrelation;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.PopulateTablesCommand;
 
+import javax.sql.DataSource;
 import java.util.Scanner;
 
 @Component
@@ -24,6 +27,8 @@ public class UserInteraction implements CommandLineRunner {
     private CommandCorrelation commandDefendant;
     private CommandHolder commandHolder;
     private PopulateTablesCommand populateTablesCommand;
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     public UserInteraction(CommandCorrelation commandDefendant, CommandHolder commandHolder,
@@ -35,6 +40,7 @@ public class UserInteraction implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        migrateWithSqlAndJavaCallbacks();
         populateTablesCommand.execute(commandHolder);
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -57,5 +63,15 @@ public class UserInteraction implements CommandLineRunner {
             }
         }
         scanner.close();
+    }
+
+    @Transactional
+    void migrateWithSqlAndJavaCallbacks() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("db/migration", "db/callback")
+                .callbacks(new ExampleFlywayCallback())
+                .load();
+        flyway.migrate();
     }
 }

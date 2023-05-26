@@ -1,0 +1,4 @@
+TRUNCATE TABLE school.course CASCADE;
+TRUNCATE TABLE school.group CASCADE;
+TRUNCATE TABLE school.student CASCADE;
+TRUNCATE TABLE school.student_course CASCADE;
