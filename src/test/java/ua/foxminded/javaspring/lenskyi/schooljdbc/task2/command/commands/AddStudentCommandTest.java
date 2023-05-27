@@ -17,7 +17,6 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRow
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,7 +33,7 @@ class AddStudentCommandTest {
     private final static String EXPECTED_FIRST_NAME_12 = "Mark12";
     private final static String EXPECTED_SECOND_NAME = "Markson";
     private final static String EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED = "Student added";
-    private final static String EXPECTED_SYSTEM_OUT_IF_NOT_ADDED = "Group id could be in range from 0 to 10\n" +
+    private final static String EXPECTED_SYSTEM_OUT_IF_NOT_ADDED = "Incorrect group_id, check info\n" +
             "Student not added, check your input";
     private final static String INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0 =
             "Incorrect result size: expected 1, actual 0";
