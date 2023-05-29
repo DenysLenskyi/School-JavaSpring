@@ -44,7 +44,7 @@ public class JdbcStudentDao extends JdbcBaseDao {
         jdbcTemplate.execute(
                 INSERT_INTO_STUDENT,
                 (PreparedStatementCallback<Boolean>) ps -> {
-                    if (groupId == null) {
+                    if (groupId == 0) {
                         ps.setNull(1, Types.NULL);
                     } else {
                         ps.setLong(1, groupId);

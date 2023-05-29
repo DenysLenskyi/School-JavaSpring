@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CommandDefendantTest {
 
     @InjectMocks
-    CommandDefendant commandDefendant;
+    CommandCorrelation commandDefendant;
 
     @Mock
     private InfoCommand infoCommand;

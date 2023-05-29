@@ -12,6 +12,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://school_jdbc_lenskyi_db_cont:5432/school_db
     stdin_open: true
     tty: true
+    volumes:
+      - ./logs:/logs
 
   db:
     image: postgres:15-alpine

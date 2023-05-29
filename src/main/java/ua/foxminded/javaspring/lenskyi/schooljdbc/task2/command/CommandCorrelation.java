@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class CommandDefendant {
+public class CommandCorrelation {
 
     private static final String INFO = "info";
     private static final String FIND_COURSE_BY_ID = "find_course";
@@ -31,14 +31,14 @@ public class CommandDefendant {
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
 
     @Autowired
-    public CommandDefendant(InfoCommand infoCommand,
-                            UnknownCommand unknownCommand,
-                            FindCourseByIdCommand findCourseByIdCommand,
-                            FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand,
-                            FindStudentsEnrolledToCourseCommand findStudentsEnrolledToCourseCommand,
-                            AddStudentCommand addStudentCommand, DeleteStudentCommand deleteStudentCommand,
-                            EnrollStudentToCourseCommand enrollStudentToCourseCommand,
-                            RemoveStudentFromCourseCommand removeStudentFromCourseCommand) {
+    public CommandCorrelation(InfoCommand infoCommand,
+                              UnknownCommand unknownCommand,
+                              FindCourseByIdCommand findCourseByIdCommand,
+                              FindGroupsWithNumStudentsCommand findGroupsWithNumStudentsCommand,
+                              FindStudentsEnrolledToCourseCommand findStudentsEnrolledToCourseCommand,
+                              AddStudentCommand addStudentCommand, DeleteStudentCommand deleteStudentCommand,
+                              EnrollStudentToCourseCommand enrollStudentToCourseCommand,
+                              RemoveStudentFromCourseCommand removeStudentFromCourseCommand) {
         this.infoCommand = infoCommand;
         this.unknownCommand = unknownCommand;
         this.findCourseByIdCommand = findCourseByIdCommand;

@@ -18,6 +18,8 @@ public class RandomDataCreator {
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
     private FileReader reader;
     private Random secureRandom;
+    @Autowired
+    private SchoolJDBCCache schoolJDBCCache;
     @Value("${filename.names}")
     private String NAMES;
     @Value("${filename.courses}")
@@ -84,7 +86,7 @@ public class RandomDataCreator {
             student.setLastName(generateStudentLastName(names));
             students.add(student);
         }
-        assignStudentsToGroups(students, 10);
+        assignStudentsToGroups(students, 10, schoolJDBCCache.getMinGroupId());
         return students;
     }
 
@@ -99,12 +101,12 @@ public class RandomDataCreator {
         return studentLastName.append(names[secureRandom.nextInt(maxNumInNamesArray)]).append(SON).toString();
     }
 
-    private void assignStudentsToGroups(List<Student> students, int numOfGroups) {
+    private void assignStudentsToGroups(List<Student> students, int numOfGroups, int minGroupId) {
         int numOfAssignedStudents = 0;
         int numStudentsToAssign = students.size();
         int minNumStudentsForGroup = 10;
         int maxNumStudentsForGroup = 30;
-        for (int i = 1; i <= numOfGroups; i++) {
+        for (int i = minGroupId; i < minGroupId + numOfGroups; i++) {
             int randomNumOfStudentsForOneGroup = secureRandom.nextInt(minNumStudentsForGroup, maxNumStudentsForGroup + 1);
             numOfAssignedStudents += randomNumOfStudentsForOneGroup;
             if (numOfAssignedStudents > students.size()) {
@@ -119,13 +121,12 @@ public class RandomDataCreator {
         }
     }
 
-    public List<StudentCourse> generateStudentCourseRelation(int numStudents) {
-        List<StudentCourse> studentsCourses = new ArrayList<>();
-        int minCourseId = 1;
-        int maxCourseId = 10;
-        for (int i = 1; i <= numStudents; i++) {
-
-
+    public Set<StudentCourse> generateStudentCourseRelation(int numStudents) {
+        Set<StudentCourse> studentsCourses = new HashSet<>();
+        int minCourseId = schoolJDBCCache.getMinCourseId();
+        int maxCourseId = schoolJDBCCache.getMaxCourseId();
+        int minStudentId = schoolJDBCCache.getMinStudentId();
+        for (int i = minStudentId; i < minStudentId + numStudents; i++) {
             int numCourses = secureRandom.nextInt(1, 4);
             Set<Integer> coursesForStudent = new HashSet<>();
             while (numCourses > 0) {
