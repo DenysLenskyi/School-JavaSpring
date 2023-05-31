@@ -3,7 +3,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.GroupRowMapper;
 
 import java.sql.PreparedStatement;

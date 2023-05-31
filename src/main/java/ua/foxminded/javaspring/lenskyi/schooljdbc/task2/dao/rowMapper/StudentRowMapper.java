@@ -1,7 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper;
 
 import org.springframework.jdbc.core.RowMapper;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

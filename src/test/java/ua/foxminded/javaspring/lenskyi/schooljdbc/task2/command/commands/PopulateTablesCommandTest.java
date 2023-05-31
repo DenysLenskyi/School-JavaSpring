@@ -9,14 +9,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcGroupDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
@@ -36,7 +36,7 @@ class PopulateTablesCommandTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
-    private JdbcCourseDao jdbcCourseDao;
+    private JpaCourseDao jdbcCourseDao;
     @Autowired
     private JdbcGroupDao jdbcGroupDao;
     @Autowired

@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.io.ByteArrayOutputStream;

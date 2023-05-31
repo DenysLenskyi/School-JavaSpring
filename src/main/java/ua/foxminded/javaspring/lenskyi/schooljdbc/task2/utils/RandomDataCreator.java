@@ -2,10 +2,10 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;

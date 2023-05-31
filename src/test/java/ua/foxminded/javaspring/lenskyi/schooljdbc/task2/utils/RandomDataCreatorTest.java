@@ -8,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 
 import java.util.List;
 import java.util.Random;

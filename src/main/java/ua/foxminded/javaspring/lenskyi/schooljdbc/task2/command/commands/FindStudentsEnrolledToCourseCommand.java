@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
 
 @Component
@@ -23,10 +23,10 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JdbcStudentCourseDao jdbcStudentCoursesDao;
-    private JdbcCourseDao jdbcCourseDao;
+    private JpaCourseDao jdbcCourseDao;
 
     @Autowired
-    public FindStudentsEnrolledToCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao, JdbcCourseDao jdbcCourseDao) {
+    public FindStudentsEnrolledToCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao, JpaCourseDao jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }

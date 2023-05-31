@@ -1,7 +1,11 @@
-package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain;
+package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm;
+
+import jakarta.persistence.Table;
 
 import java.util.Objects;
 
+//@Entity
+@Table(name = "course", schema = "school")
 public class StudentCourse {
 
     private int studentId;

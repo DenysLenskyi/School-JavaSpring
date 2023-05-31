@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Repository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.sql.PreparedStatement;
