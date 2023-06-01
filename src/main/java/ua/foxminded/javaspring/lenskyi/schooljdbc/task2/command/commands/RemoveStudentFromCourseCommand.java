@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 
 @Component
 public class RemoveStudentFromCourseCommand implements Command {
@@ -23,21 +23,21 @@ public class RemoveStudentFromCourseCommand implements Command {
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JdbcStudentCourseDao jdbcStudentCoursesDao;
-    private JdbcStudentDao jdbcStudentDao;
+    private JpaStudentCourseDao jdbcStudentCoursesDao;
+    private JpaStudentDao jpaStudentDao;
     private JpaCourseDao jdbcCourseDao;
 
     @Autowired
-    public RemoveStudentFromCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao,
-                                          JdbcStudentDao jdbcStudentDao, JpaCourseDao jdbcCourseDao) {
+    public RemoveStudentFromCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao,
+                                          JpaStudentDao jpaStudentDao, JpaCourseDao jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
-        this.jdbcStudentDao = jdbcStudentDao;
+        this.jpaStudentDao = jpaStudentDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (!(jdbcStudentDao.doesStudentExist(commandHolder.getStudentId()))) {
+        if (!(jpaStudentDao.doesStudentExist(commandHolder.getStudentId()))) {
             System.out.println(WRONG_STUDENT_ID);
             log.warn("Attempt to remove non existed student with id={} from a course", commandHolder.getStudentId());
             return;

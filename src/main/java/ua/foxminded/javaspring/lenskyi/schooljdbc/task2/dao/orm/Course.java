@@ -1,9 +1,8 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "course", schema = "school")
@@ -16,6 +15,8 @@ public class Course {
     private String name;
     @Column(name = "DESCRIPTION")
     private String description;
+    @OneToMany(mappedBy = "course")
+    Set<StudentCourse> studentCourse;
 
     public Course() {
     }

@@ -1,43 +1,59 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm;
 
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
-//@Entity
-@Table(name = "course", schema = "school")
+@Entity
+@Table(name = "student_course", schema = "school")
 public class StudentCourse {
 
-    private int studentId;
-    private int courseId;
+    @EmbeddedId
+    StudentCoursePK id;
 
-    public int getStudentId() {
-        return studentId;
+    @ManyToOne
+    @MapsId("studentId")
+    @JoinColumn(name = "student_id")
+    private Student student;
+
+    @ManyToOne
+    @MapsId("courseId")
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    public StudentCourse() {
     }
 
-    public void setStudentId(int studentId) {
-        this.studentId = studentId;
+    public StudentCourse(Student student, Course course) {
+        this.student = student;
+        this.course = course;
     }
 
-    public int getCourseId() {
-        return courseId;
+    public Student getStudent() {
+        return student;
     }
 
-    public void setCourseId(int courseId) {
-        this.courseId = courseId;
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(studentId, courseId);
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StudentCourse that = (StudentCourse) o;
-        return (studentId == that.getStudentId()) &&
-                (courseId == that.getCourseId());
+        if (!(o instanceof StudentCourse that)) return false;
+        return student.equals(that.student) && course.equals(that.course);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(student, course);
     }
 }

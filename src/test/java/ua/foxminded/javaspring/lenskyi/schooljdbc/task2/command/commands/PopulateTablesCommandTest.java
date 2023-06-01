@@ -1,5 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,15 +12,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolJDBCCache;
 
 import java.util.List;
 import java.util.Map;
@@ -38,18 +40,22 @@ class PopulateTablesCommandTest {
     @Autowired
     private JpaCourseDao jdbcCourseDao;
     @Autowired
-    private JdbcGroupDao jdbcGroupDao;
+    private JpaGroupDao jpaGroupDao;
     @Autowired
-    private JdbcStudentDao jdbcStudentDao;
+    private JpaStudentDao jpaStudentDao;
     @Autowired
-    private JdbcStudentCourseDao jdbcStudentCourseDao;
+    private JpaStudentCourseDao jpaStudentCourseDao;
+    @Autowired
+    private SchoolJDBCCache schoolJDBCCache;
+    @PersistenceContext
+    private EntityManager entityManager;
     private PopulateTablesCommand populateTablesCommand;
     private RandomDataCreator mockRandomDataCreator = Mockito.mock(RandomDataCreator.class);
 
     @BeforeEach
     void setup() {
-        populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, jdbcGroupDao, jdbcStudentDao,
-                jdbcStudentCourseDao, mockRandomDataCreator);
+        populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, jpaGroupDao, jpaStudentDao,
+                jpaStudentCourseDao, mockRandomDataCreator);
     }
 
     @Test
@@ -69,24 +75,22 @@ class PopulateTablesCommandTest {
         assertEquals(6, testStudents.size());
         assertEquals(1, testStudentCourse.size());
         jdbcCourseDao.executeQuery("delete from school.course where name = 'Sport';");
-        jdbcGroupDao.executeQuery("delete from school.group where name = 'BB-00';");
-        jdbcStudentDao.executeQuery("delete from school.student where first_name = 'Boris';");
-        jdbcStudentCourseDao.executeQuery("delete from school.student_course where course_id = 2;");
+        jpaGroupDao.executeQuery("delete from school.group where name = 'BB-00';");
+        jpaStudentDao.executeQuery("delete from school.student where first_name = 'Boris';");
+        jpaStudentCourseDao.executeQuery("delete from school.student_course where course_id = 2;");
     }
 
     private void setupRandomDataCreator() {
         List<Course> courses = List.of(new Course(2, "Sport", "Sport descr"));
         List<Group> groups = List.of(new Group(2, "BB-00"));
-        List<Student> students = List.of(new Student(1, null, "Boris", "Jonsonuk"));
-        StudentCourse studentCourse = new StudentCourse();
-        List<Student> studentsWithRightId = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
-        studentCourse.setStudentId(studentsWithRightId.get(0).getId());
-        studentCourse.setCourseId(2);
+        List<Student> students = List.of(new Student(null, "Boris", "Jonsonuk"));
+        StudentCourse studentCourse = new StudentCourse(
+                entityManager.find(Student.class, schoolJDBCCache.getMinStudentId()),
+                entityManager.find(Course.class, schoolJDBCCache.getMinCourseId()));
         Set<StudentCourse> studentCourses = Set.of(studentCourse);
         when(mockRandomDataCreator.getCoursesFromResources()).thenReturn(courses);
         when(mockRandomDataCreator.generateGroups(isA(Integer.class))).thenReturn(groups);
         when(mockRandomDataCreator.generateStudents(isA(Integer.class))).thenReturn(students);
-        when(mockRandomDataCreator.generateStudentCourseRelation(isA(Integer.class))).thenReturn(studentCourses);
+        when(mockRandomDataCreator.enrollStudentsToCourses()).thenReturn(studentCourses);
     }
 }

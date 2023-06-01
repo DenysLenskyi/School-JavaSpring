@@ -1,5 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
@@ -24,19 +26,13 @@ public class RandomDataCreator {
     private String NAMES;
     @Value("${filename.courses}")
     private String COURSES;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     public RandomDataCreator(FileReader reader, Random secureRandom) {
         this.reader = reader;
         this.secureRandom = secureRandom;
-    }
-
-    public void setNAMES(String NAMES) {
-        this.NAMES = NAMES;
-    }
-
-    public void setCOURSES(String COURSES) {
-        this.COURSES = COURSES;
     }
 
     public List<Group> generateGroups(int numGroups) {
@@ -121,26 +117,35 @@ public class RandomDataCreator {
         }
     }
 
-    public Set<StudentCourse> generateStudentCourseRelation(int numStudents) {
+    public Set<StudentCourse> enrollStudentsToCourses() {
         Set<StudentCourse> studentsCourses = new HashSet<>();
-        int minCourseId = schoolJDBCCache.getMinCourseId();
-        int maxCourseId = schoolJDBCCache.getMaxCourseId();
-        int minStudentId = schoolJDBCCache.getMinStudentId();
-        for (int i = minStudentId; i < minStudentId + numStudents; i++) {
+//        int minCourseId = schoolJDBCCache.getMinCourseId();
+//        int maxCourseId = schoolJDBCCache.getMaxCourseId();
+//        int minStudentId = schoolJDBCCache.getMinStudentId();
+//        for (int i = minStudentId; i < minStudentId + numStudents; i++) {
+//            int numCourses = secureRandom.nextInt(1, 4);
+//            Set<Integer> coursesForStudent = new HashSet<>();
+//            while (numCourses > 0) {
+//                coursesForStudent.add(secureRandom.nextInt(minCourseId, maxCourseId + 1));
+//                numCourses--;
+//            }
+//            int finalI = i;
+//            coursesForStudent.forEach(courseId -> {
+//                StudentCourse studentCourse = new StudentCourse();
+//                studentCourse.setStudentId(finalI);
+//                studentCourse.setCourseId(courseId);
+//                studentsCourses.add(studentCourse);
+//            });
+//        }
+        List<Student> students = entityManager.createQuery("select s from Student s").getResultList();
+        List<Course> courses = entityManager.createQuery("select c from Course c").getResultList();
+        students.forEach(student -> {
             int numCourses = secureRandom.nextInt(1, 4);
-            Set<Integer> coursesForStudent = new HashSet<>();
             while (numCourses > 0) {
-                coursesForStudent.add(secureRandom.nextInt(minCourseId, maxCourseId + 1));
+                studentsCourses.add(new StudentCourse(student, courses.get(secureRandom.nextInt(courses.size()))));
                 numCourses--;
             }
-            int finalI = i;
-            coursesForStudent.forEach(courseId -> {
-                StudentCourse studentCourse = new StudentCourse();
-                studentCourse.setStudentId(finalI);
-                studentCourse.setCourseId(courseId);
-                studentsCourses.add(studentCourse);
-            });
-        }
+        });
         return studentsCourses;
     }
 

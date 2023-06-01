@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
@@ -34,7 +34,7 @@ class RemoveStudentFromCourseCommandTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
-    private JdbcStudentCourseDao jdbcStudentCourseDao;
+    private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
 
@@ -54,7 +54,7 @@ class RemoveStudentFromCourseCommandTest {
         List<Student> students = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         int studentId = students.get(0).getId();
-        jdbcStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
+        jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
@@ -106,7 +106,7 @@ class RemoveStudentFromCourseCommandTest {
         List<Student> students = jdbcTemplate.query(
                 "select * from school.student", new StudentRowMapper());
         int studentId = students.get(0).getId();
-        jdbcStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
+        jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);

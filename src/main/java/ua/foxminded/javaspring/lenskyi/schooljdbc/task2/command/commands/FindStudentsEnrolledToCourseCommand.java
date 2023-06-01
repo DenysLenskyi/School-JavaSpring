@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
 
 @Component
 public class FindStudentsEnrolledToCourseCommand implements Command {
@@ -22,11 +22,11 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JdbcStudentCourseDao jdbcStudentCoursesDao;
+    private JpaStudentCourseDao jdbcStudentCoursesDao;
     private JpaCourseDao jdbcCourseDao;
 
     @Autowired
-    public FindStudentsEnrolledToCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao, JpaCourseDao jdbcCourseDao) {
+    public FindStudentsEnrolledToCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao, JpaCourseDao jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }

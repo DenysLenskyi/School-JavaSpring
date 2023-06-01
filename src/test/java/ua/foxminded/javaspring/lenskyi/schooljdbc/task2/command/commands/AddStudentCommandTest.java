@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
@@ -43,7 +43,7 @@ class AddStudentCommandTest {
     @Autowired
     private AddStudentCommand addStudentCommand;
     @Autowired
-    private JdbcStudentDao jdbcStudentDao;
+    private JpaStudentDao jpaStudentDao;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -73,7 +73,7 @@ class AddStudentCommandTest {
         assertEquals(EXPECTED_CORRECT_GROUP_ID, actualStudent.getGroupId());
         assertEquals(EXPECTED_FIRST_NAME_10, actualStudent.getFirstName());
         assertEquals(EXPECTED_SECOND_NAME, actualStudent.getLastName());
-        jdbcStudentDao.executeQuery("delete from school.student where first_name='Mark10'");
+        jpaStudentDao.executeQuery("delete from school.student where first_name='Mark10'");
     }
 
     @Test

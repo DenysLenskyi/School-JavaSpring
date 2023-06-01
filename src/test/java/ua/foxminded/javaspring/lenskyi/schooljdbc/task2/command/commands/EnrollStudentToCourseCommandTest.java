@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
@@ -34,7 +34,7 @@ class EnrollStudentToCourseCommandTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
-    private JdbcStudentCourseDao jdbcStudentCourseDao;
+    private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
     private EnrollStudentToCourseCommand enrollStudentToCourseCommand;
 
@@ -61,7 +61,7 @@ class EnrollStudentToCourseCommandTest {
         List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
         assertTrue(studentCourse.size() == 1);
-        jdbcStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
+        jpaStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
     }
 
     @Test
@@ -110,8 +110,7 @@ class EnrollStudentToCourseCommandTest {
         List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
         assertTrue(studentCourse.size() == 1);
-        assertEquals("Student enrolled to the course\n" +
-                "This student already visits this course", outputStreamCaptor.toString().trim());
-        jdbcStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
+        assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
+        jpaStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
     }
 }

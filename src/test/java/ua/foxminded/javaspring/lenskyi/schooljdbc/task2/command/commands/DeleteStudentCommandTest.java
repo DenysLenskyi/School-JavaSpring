@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
@@ -29,7 +29,7 @@ class DeleteStudentCommandTest {
     @Autowired
     private DeleteStudentCommand deleteStudentCommand;
     @Autowired
-    private JdbcStudentDao jdbcStudentDao;
+    private JpaStudentDao jpaStudentDao;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -58,7 +58,7 @@ class DeleteStudentCommandTest {
         //asserts
         assertEquals("Student deleted", outputStreamCaptor.toString().trim());
         assertEquals(4, studentsAfterDelete.size());
-        jdbcStudentDao.executeQuery("INSERT INTO school.student (group_id, first_name, last_name) VALUES\n" +
+        jpaStudentDao.executeQuery("INSERT INTO school.student (group_id, first_name, last_name) VALUES\n" +
                 "    (null, 'Mark', 'Markson');");
     }
 

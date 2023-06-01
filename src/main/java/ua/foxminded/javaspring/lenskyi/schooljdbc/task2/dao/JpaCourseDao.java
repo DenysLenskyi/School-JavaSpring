@@ -1,10 +1,8 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import jakarta.persistence.NoResultException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
@@ -12,17 +10,10 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import java.util.List;
 
 @Repository
-public class JpaCourseDao extends JdbcBaseDao {
+public class JpaCourseDao extends JpaBaseDao {
 
     public static final String FIND_BY_ID = "select c from Course c where c.id = :courseId";
     public static final String FIND_BY_NAME = "select c from Course c where c.name = :courseName";
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Autowired
-    public JpaCourseDao(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
-    }
 
     @Transactional
     public void addCourses(List<Course> courses) {
@@ -48,7 +39,7 @@ public class JpaCourseDao extends JdbcBaseDao {
                     .setParameter("courseName", courseName)
                     .getSingleResult();
             return true;
-        } catch (EntityNotFoundException e) {
+        } catch (EntityNotFoundException | EmptyResultDataAccessException | NoResultException e) {
             return false;
         }
     }
