@@ -1,22 +1,23 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,12 +32,14 @@ class RemoveStudentFromCourseCommandTest {
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    @PersistenceContext
+    private EntityManager entityManager;
     @Autowired
     private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
+    @Autowired
+    private SchoolCache schoolCache;
 
     @BeforeEach
     void setup() {
@@ -51,9 +54,8 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandCorrectTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
-        int studentId = students.get(0).getId();
+        List<Student> students = entityManager.createQuery("select s from Student s", Student.class).getResultList();
+        long studentId = students.get(0).getId();
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
@@ -61,7 +63,8 @@ class RemoveStudentFromCourseCommandTest {
         commandHolder.setCourseName(expectedCourseName);
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
+                StudentCourse.class).getResultList();
         //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Student removed from the course", outputStreamCaptor.toString().trim());
@@ -70,14 +73,14 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandIncorrectCourseTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
+        List<Student> students = entityManager.createQuery("select s from Student s", Student.class).getResultList();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(students.get(0).getId());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
+                StudentCourse.class).getResultList();
         //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong course name.\n" +
@@ -89,11 +92,12 @@ class RemoveStudentFromCourseCommandTest {
     void removeStudentFromCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(666777);
+        commandHolder.setStudentId(schoolCache.getMaxStudentId() + 1);
         commandHolder.setCourseName(expectedCourseName);
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
+                StudentCourse.class).getResultList();
         //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong student's id. This id doesn't exist in the database",
@@ -103,9 +107,7 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
-        int studentId = students.get(0).getId();
+        long studentId = schoolCache.getMinStudentId();
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
@@ -114,7 +116,8 @@ class RemoveStudentFromCourseCommandTest {
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
+        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
+                StudentCourse.class).getResultList();
         //asserts
         assertTrue(studentCourse.size() == 0);
         assertEquals("Student removed from the course\n" +

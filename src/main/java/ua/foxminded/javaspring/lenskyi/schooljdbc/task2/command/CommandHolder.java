@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 public class CommandHolder {
 
     private String commandName;
-    private int courseId;
+    private long courseId;
     private int numStudents;
     private String courseName;
     private Long groupId;
     private String studentFirstName;
     private String studentLastName;
-    private int studentId;
+    private long studentId;
 
     public String getCommandName() {
         return commandName;
@@ -22,11 +22,11 @@ public class CommandHolder {
         this.commandName = commandName;
     }
 
-    public int getCourseId() {
+    public long getCourseId() {
         return courseId;
     }
 
-    public void setCourseId(int courseId) {
+    public void setCourseId(long courseId) {
         this.courseId = courseId;
     }
 
@@ -70,11 +70,11 @@ public class CommandHolder {
         this.studentLastName = studentLastName;
     }
 
-    public int getStudentId() {
+    public long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(int studentId) {
+    public void setStudentId(long studentId) {
         this.studentId = studentId;
     }
 }

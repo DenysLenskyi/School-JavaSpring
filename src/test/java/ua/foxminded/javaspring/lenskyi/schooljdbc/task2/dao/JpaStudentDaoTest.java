@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolJDBCCache;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,17 +15,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class JpaStudentDaoTest {
 
     @Autowired
-    JpaStudentDao jpaStudentDao;
+    private JpaStudentDao jpaStudentDao;
     @Autowired
-    SchoolJDBCCache schoolJDBCCache;
+    private SchoolCache schoolCache;
 
     @Test
     void doesStudentExistTrueTest() {
-        assertTrue(jpaStudentDao.doesStudentExist(schoolJDBCCache.getMinStudentId()));
+        assertTrue(jpaStudentDao.doesStudentExist(schoolCache.getMinStudentId()));
     }
 
     @Test
     void doesStudentExistFalseTest() {
-        assertFalse(jpaStudentDao.doesStudentExist(schoolJDBCCache.getMaxStudentId() + 1));
+        assertFalse(jpaStudentDao.doesStudentExist(schoolCache.getMaxStudentId() + 1));
     }
 }

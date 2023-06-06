@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolJDBCCache;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
 
 @Component
 public class InfoCommand implements Command {
@@ -35,16 +35,16 @@ public class InfoCommand implements Command {
     private static final String FORMAT = "%1$s %2$s - %3$s\n%4$s %5$s - %6$s\n%7$s %8$s - %9$s\n%10$s";
 
     @Autowired
-    private SchoolJDBCCache schoolJDBCCache;
+    private SchoolCache schoolCache;
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        int minCourseId = schoolJDBCCache.getMinCourseId();
-        int maxCourseId = schoolJDBCCache.getMaxCourseId();
-        int minGroupId = schoolJDBCCache.getMinGroupId();
-        int maxGroupId = schoolJDBCCache.getMaxGroupId();
-        int minStudentId = schoolJDBCCache.getMinStudentId();
-        int maxStudentId = schoolJDBCCache.getMaxStudentId();
+        long minCourseId = schoolCache.getMinCourseId();
+        long maxCourseId = schoolCache.getMaxCourseId();
+        long minGroupId = schoolCache.getMinGroupId();
+        long maxGroupId = schoolCache.getMaxGroupId();
+        long minStudentId = schoolCache.getMinStudentId();
+        long maxStudentId = schoolCache.getMaxStudentId();
         System.out.println(String.format(FORMAT,
                 INFO_LINE_1, minCourseId, maxCourseId,
                 INFO_LINE_2, minGroupId, maxGroupId,

@@ -9,7 +9,8 @@ import java.util.Set;
 public class Student {
     @Id
     @Column(name = "ID")
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     @Column(name = "GROUP_ID")
     private Long groupId;
     @Column(name = "FIRST_NAME")
@@ -31,22 +32,15 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public Student(int id, Long groupId, String firstName, String lastName) {
-        this.id = id;
-        this.groupId = groupId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public Long getGroupId() {
+    public long getGroupId() {
         return groupId;
     }
 

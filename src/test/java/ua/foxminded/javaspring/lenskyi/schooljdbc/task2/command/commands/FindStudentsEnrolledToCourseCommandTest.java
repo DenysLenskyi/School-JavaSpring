@@ -5,18 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandCorrelation;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,13 +29,8 @@ class FindStudentsEnrolledToCourseCommandTest {
     private FindStudentsEnrolledToCourseCommand findStudentsEnrolledToCourseCommand;
     @Autowired
     private JpaStudentCourseDao jpaStudentCourseDao;
-
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private CommandCorrelation commandCorrelation;
-    @Autowired
-    private CommandHolder commandHolder;
+    private SchoolCache schoolCache;
 
     @BeforeEach
     void setUp() {
@@ -54,9 +45,7 @@ class FindStudentsEnrolledToCourseCommandTest {
     @Test
     void findStudentsEnrolledToCourseCommandCorrectTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
-        int studentId = students.get(0).getId();
+        long studentId = schoolCache.getMinStudentId();
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();

@@ -27,7 +27,7 @@ public class JpaCourseDao extends JpaBaseDao {
         }
     }
 
-    public Course findCourseById(int courseId) {
+    public Course findCourseById(long courseId) {
         return entityManager.createQuery(FIND_BY_ID, Course.class)
                 .setParameter("courseId", courseId)
                 .getSingleResult();

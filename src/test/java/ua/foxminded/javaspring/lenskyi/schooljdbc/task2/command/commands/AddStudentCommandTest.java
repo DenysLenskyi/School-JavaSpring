@@ -1,19 +1,20 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolderBuilder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Transactional
 class AddStudentCommandTest {
 
     private final static Long EXPECTED_CORRECT_GROUP_ID = 1L;
@@ -35,8 +37,8 @@ class AddStudentCommandTest {
     private final static String EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED = "Student added";
     private final static String EXPECTED_SYSTEM_OUT_IF_NOT_ADDED = "Incorrect group_id, check info\n" +
             "Student not added, check your input";
-    private final static String INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0 =
-            "Incorrect result size: expected 1, actual 0";
+    private final static String NO_RESULT_FOUND_FOR_QUERY =
+            "No result found for query";
 
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -44,8 +46,8 @@ class AddStudentCommandTest {
     private AddStudentCommand addStudentCommand;
     @Autowired
     private JpaStudentDao jpaStudentDao;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @BeforeEach
     void setup() {
@@ -66,8 +68,8 @@ class AddStudentCommandTest {
         commandHolder.setStudentLastName(EXPECTED_SECOND_NAME);
         //act
         addStudentCommand.execute(commandHolder);
-        Student actualStudent = jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark10';",
-                new StudentRowMapper());
+        Student actualStudent = entityManager.createQuery("select s from Student s where s.firstName = 'Mark10'",
+                Student.class).getSingleResult();
         //asserts
         assertEquals(EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED, outputStreamCaptor.toString().trim());
         assertEquals(EXPECTED_CORRECT_GROUP_ID, actualStudent.getGroupId());
@@ -87,10 +89,10 @@ class AddStudentCommandTest {
         addStudentCommand.execute(commandHolder);
         //asserts
         assertEquals(EXPECTED_SYSTEM_OUT_IF_NOT_ADDED, outputStreamCaptor.toString().trim());
-        Exception e = assertThrows(EmptyResultDataAccessException.class,
-                () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark11';",
-                        new StudentRowMapper()));
-        assertEquals(INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0, e.getMessage());
+        Exception e = assertThrows(NoResultException.class,
+                () -> entityManager.createQuery("select s from Student s where s.firstName = 'Mark11'",
+                        Student.class).getSingleResult());
+        assertTrue(e.getMessage().contains(NO_RESULT_FOUND_FOR_QUERY));
     }
 
     @Test
@@ -104,10 +106,10 @@ class AddStudentCommandTest {
         addStudentCommand.execute(commandHolder);
         //asserts
         assertEquals(EXPECTED_SYSTEM_OUT_IF_NOT_ADDED, outputStreamCaptor.toString().trim());
-        Exception e = assertThrows(EmptyResultDataAccessException.class,
-                () -> jdbcTemplate.queryForObject("select * from school.student where first_name = 'Mark12';",
-                        new StudentRowMapper()));
-        assertEquals(INCORRECT_RESULT_SIZE_EXPECTED_1_ACTUAL_0, e.getMessage());
+        Exception e = assertThrows(NoResultException.class,
+                () -> entityManager.createQuery("select s from Student s where s.firstName = 'Mark12'",
+                        Student.class).getSingleResult());
+        assertTrue(e.getMessage().contains(NO_RESULT_FOUND_FOR_QUERY));
     }
 
     @Test

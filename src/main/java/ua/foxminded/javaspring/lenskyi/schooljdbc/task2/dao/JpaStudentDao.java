@@ -36,14 +36,14 @@ public class JpaStudentDao extends JpaBaseDao {
                 .executeUpdate();
     }
 
-    public void deleteStudent(int studentId) {
+    public void deleteStudent(long studentId) {
         Student student = entityManager.find(Student.class, studentId);
         entityManager.remove(student);
         entityManager.flush();
         entityManager.clear();
     }
 
-    public Boolean doesStudentExist(int studentId) {
+    public Boolean doesStudentExist(long studentId) {
         try {
             entityManager.createQuery(FIND_STUDENT_BY_ID, Student.class)
                     .setParameter("studentId", studentId)

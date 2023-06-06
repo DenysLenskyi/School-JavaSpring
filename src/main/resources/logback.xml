@@ -17,7 +17,7 @@
             <Pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Pattern>
         </encoder>
     </appender>
-    <root level="debug" additivity="false">
+    <root level="INFO" additivity="false">
         <appender-ref ref="FILE"></appender-ref>
     </root>
 </configuration>

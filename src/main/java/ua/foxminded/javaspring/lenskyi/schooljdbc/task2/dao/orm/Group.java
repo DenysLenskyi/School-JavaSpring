@@ -10,25 +10,25 @@ public class Group {
 
     @Id
     @Column(name = "ID")
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     @Column(name = "NAME")
     private String name;
     @OneToMany(mappedBy = "group")
     private Set<Student> students;
 
-    public Group(int id, String name) {
-        this.id = id;
+    public Group(String name) {
         this.name = name;
     }
 
     public Group() {
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

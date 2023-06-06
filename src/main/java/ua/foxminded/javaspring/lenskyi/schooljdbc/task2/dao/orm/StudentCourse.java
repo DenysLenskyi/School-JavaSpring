@@ -9,7 +9,7 @@ import java.util.Objects;
 public class StudentCourse {
 
     @EmbeddedId
-    StudentCoursePK id;
+    private StudentCoursePK id;
 
     @ManyToOne
     @MapsId("studentId")
@@ -49,7 +49,9 @@ public class StudentCourse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof StudentCourse that)) return false;
-        return student.equals(that.student) && course.equals(that.course);
+        if (!Objects.equals(id, that.id)) return false;
+        if (getStudent() != null ? !getStudent().equals(that.getStudent()) : that.getStudent() != null) return false;
+        return getCourse() != null ? getCourse().equals(that.getCourse()) : that.getCourse() == null;
     }
 
     @Override

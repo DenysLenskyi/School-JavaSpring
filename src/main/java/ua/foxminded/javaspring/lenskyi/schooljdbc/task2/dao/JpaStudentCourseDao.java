@@ -55,7 +55,7 @@ public class JpaStudentCourseDao extends JpaBaseDao {
                 .getResultList();
     }
 
-    public boolean isStudentEnrolledToCourse(int studentId, String courseName) {
+    public boolean isStudentEnrolledToCourse(long studentId, String courseName) {
         try {
             entityManager.createQuery(SELECT_BY_ID_AND_COURSE_NAME, Student.class)
                     .setParameter("courseName", courseName)
@@ -68,14 +68,14 @@ public class JpaStudentCourseDao extends JpaBaseDao {
 
     }
 
-    public void addStudentToCourse(int studentId, String courseName) {
+    public void addStudentToCourse(long studentId, String courseName) {
         entityManager.createNativeQuery(ADD_STUDENT_TO_COURSE)
                 .setParameter(1, studentId)
                 .setParameter(2, courseName)
                 .executeUpdate();
     }
 
-    public void removeStudentFromCourse(int studentId, String courseName) {
+    public void removeStudentFromCourse(long studentId, String courseName) {
         entityManager.createNativeQuery(DELETE_STUDENT_COURSE)
                 .setParameter(1, studentId)
                 .setParameter(2, courseName)

@@ -7,23 +7,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.*;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolJDBCCache;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,8 +29,8 @@ import static org.mockito.Mockito.when;
 @Testcontainers
 class PopulateTablesCommandTest {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    @PersistenceContext
+    private EntityManager entityManager;
     @Autowired
     private JpaCourseDao jdbcCourseDao;
     @Autowired
@@ -46,9 +40,7 @@ class PopulateTablesCommandTest {
     @Autowired
     private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
-    private SchoolJDBCCache schoolJDBCCache;
-    @PersistenceContext
-    private EntityManager entityManager;
+    private SchoolCache schoolCache;
     private PopulateTablesCommand populateTablesCommand;
     private RandomDataCreator mockRandomDataCreator = Mockito.mock(RandomDataCreator.class);
 
@@ -64,11 +56,15 @@ class PopulateTablesCommandTest {
         setupRandomDataCreator();
         populateTablesCommand.execute(new CommandHolder());
         //act
-        List<Map<String, Object>> testCourses = jdbcTemplate.queryForList("select * from school.course");
-        List<Map<String, Object>> testGroups = jdbcTemplate.queryForList("select * from school.group");
-        List<Map<String, Object>> testStudents = jdbcTemplate.queryForList("select * from school.student");
-        List<Map<String, Object>> testStudentCourse = jdbcTemplate.queryForList(
-                "select * from school.student_course");
+        List<Course> testCourses = entityManager.createQuery("select c from Course c", Course.class)
+                .getResultList();
+        List<Group> testGroups = entityManager.createQuery("select g from Group g", Group.class)
+                .getResultList();
+        ;
+        List<Student> testStudents = entityManager.createQuery("select s from Student s", Student.class)
+                .getResultList();
+        List<StudentCourse> testStudentCourse = entityManager.createQuery("select sc from StudentCourse sc",
+                StudentCourse.class).getResultList();
         //asserts
         assertEquals(2, testCourses.size());
         assertEquals(2, testGroups.size());
@@ -81,12 +77,12 @@ class PopulateTablesCommandTest {
     }
 
     private void setupRandomDataCreator() {
-        List<Course> courses = List.of(new Course(2, "Sport", "Sport descr"));
-        List<Group> groups = List.of(new Group(2, "BB-00"));
+        List<Course> courses = List.of(new Course("Sport", "Sport descr"));
+        List<Group> groups = List.of(new Group("BB-00"));
         List<Student> students = List.of(new Student(null, "Boris", "Jonsonuk"));
         StudentCourse studentCourse = new StudentCourse(
-                entityManager.find(Student.class, schoolJDBCCache.getMinStudentId()),
-                entityManager.find(Course.class, schoolJDBCCache.getMinCourseId()));
+                entityManager.find(Student.class, schoolCache.getMinStudentId()),
+                entityManager.find(Course.class, schoolCache.getMinCourseId()));
         Set<StudentCourse> studentCourses = Set.of(studentCourse);
         when(mockRandomDataCreator.getCoursesFromResources()).thenReturn(courses);
         when(mockRandomDataCreator.generateGroups(isA(Integer.class))).thenReturn(groups);

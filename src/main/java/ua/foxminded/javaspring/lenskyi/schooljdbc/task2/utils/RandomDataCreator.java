@@ -4,10 +4,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -18,10 +19,12 @@ public class RandomDataCreator {
     private static final String SEMICOLON = ";";
     private static final String HYPHEN = "-";
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
+    private static final String SELECT_ALL_STUDENTS = "select s from Student s";
+    private static final String SELECT_ALL_COURSES = "select c from Course c";
     private FileReader reader;
     private Random secureRandom;
     @Autowired
-    private SchoolJDBCCache schoolJDBCCache;
+    private SchoolCache schoolCache;
     @Value("${filename.names}")
     private String NAMES;
     @Value("${filename.courses}")
@@ -39,7 +42,6 @@ public class RandomDataCreator {
         List<Group> groups = new ArrayList<>();
         for (int i = 1; i <= numGroups; i++) {
             Group group = new Group();
-            group.setId(i);
             group.setName(generateGroupName());
             groups.add(group);
         }
@@ -76,13 +78,12 @@ public class RandomDataCreator {
         String[] names = reader.readFile(NAMES).split(SEMICOLON);
         for (int i = 1; i <= numStudents; i++) {
             Student student = new Student();
-            student.setId(i);
             student.setGroupId(null);
             student.setFirstName(generateStudentFirstName(names));
             student.setLastName(generateStudentLastName(names));
             students.add(student);
         }
-        assignStudentsToGroups(students, 10, schoolJDBCCache.getMinGroupId());
+        assignStudentsToGroups(students, 10, Math.toIntExact(schoolCache.getMinGroupId()));
         return students;
     }
 
@@ -119,26 +120,8 @@ public class RandomDataCreator {
 
     public Set<StudentCourse> enrollStudentsToCourses() {
         Set<StudentCourse> studentsCourses = new HashSet<>();
-//        int minCourseId = schoolJDBCCache.getMinCourseId();
-//        int maxCourseId = schoolJDBCCache.getMaxCourseId();
-//        int minStudentId = schoolJDBCCache.getMinStudentId();
-//        for (int i = minStudentId; i < minStudentId + numStudents; i++) {
-//            int numCourses = secureRandom.nextInt(1, 4);
-//            Set<Integer> coursesForStudent = new HashSet<>();
-//            while (numCourses > 0) {
-//                coursesForStudent.add(secureRandom.nextInt(minCourseId, maxCourseId + 1));
-//                numCourses--;
-//            }
-//            int finalI = i;
-//            coursesForStudent.forEach(courseId -> {
-//                StudentCourse studentCourse = new StudentCourse();
-//                studentCourse.setStudentId(finalI);
-//                studentCourse.setCourseId(courseId);
-//                studentsCourses.add(studentCourse);
-//            });
-//        }
-        List<Student> students = entityManager.createQuery("select s from Student s").getResultList();
-        List<Course> courses = entityManager.createQuery("select c from Course c").getResultList();
+        List<Student> students = entityManager.createQuery(SELECT_ALL_STUDENTS).getResultList();
+        List<Course> courses = entityManager.createQuery(SELECT_ALL_COURSES).getResultList();
         students.forEach(student -> {
             int numCourses = secureRandom.nextInt(1, 4);
             while (numCourses > 0) {
@@ -152,12 +135,9 @@ public class RandomDataCreator {
     public List<Course> getCoursesFromResources() {
         List<Course> courses = new ArrayList<>();
         String[] coursesWithDescription = reader.readFile(COURSES).split(SEMICOLON);
-        int id = 0;
         for (String courseWithDescription : coursesWithDescription) {
-            id++;
             String[] str = courseWithDescription.split(WHITESPACE_HYPHEN_WHITESPACE);
             Course course = new Course();
-            course.setId(id);
             course.setName(str[0]);
             course.setDescription(str[1]);
             courses.add(course);
