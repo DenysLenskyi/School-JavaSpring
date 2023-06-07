@@ -1,7 +1,5 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,12 +9,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,13 +32,15 @@ class EnrollStudentToCourseCommandTest {
     @Autowired
     private EnrollStudentToCourseCommand enrollStudentToCourseCommand;
     @Autowired
+    private JpaStudentDao jpaStudentDao;
+    @Autowired
     private SchoolCache schoolCache;
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
+        schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
+        schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
     }
 
     @AfterEach
@@ -52,30 +51,26 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandCorrectTest() {
         //arranges
+        long studentId = schoolCache.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMinStudentId());
+        commandHolder.setStudentId(studentId);
         commandHolder.setCourseName(expectedCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
-                StudentCourse.class).getResultList();
         //asserts
-        assertTrue(studentCourse.size() == 1);
-        jpaStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(schoolCache.getMinStudentId(), expectedCourseName));
+        jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 
     @Test
     void enrollStudentToCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(777666123);
+        commandHolder.setStudentId(schoolCache.getMaxStudentId() + 1);
         commandHolder.setCourseName(expectedCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
-                StudentCourse.class).getResultList();
         //asserts
-        assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong student's id. This id doesn't exist in the database", outputStreamCaptor.toString().trim());
     }
 
@@ -87,10 +82,7 @@ class EnrollStudentToCourseCommandTest {
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
-                StudentCourse.class).getResultList();
         //asserts
-        assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong course name.\n" +
                 "Available courses: Math, English, Biologic, Geography, Chemistry,\n" +
                 "                   Physics, History, Finance, Sports, Etiquette.", outputStreamCaptor.toString().trim());
@@ -99,17 +91,16 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandAlreadyEnrolledStudentTest() {
         //asserts
+        long studentId = schoolCache.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMinStudentId());
+        commandHolder.setStudentId(studentId);
         commandHolder.setCourseName(expectedCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<StudentCourse> studentCourse = entityManager.createQuery("select sc from StudentCourse sc",
-                StudentCourse.class).getResultList();
         //asserts
-        assertTrue(studentCourse.size() == 1);
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId, expectedCourseName));
         assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
-        jpaStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
+        jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 }

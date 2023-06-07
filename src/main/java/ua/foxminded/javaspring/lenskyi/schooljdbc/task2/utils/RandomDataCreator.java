@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;

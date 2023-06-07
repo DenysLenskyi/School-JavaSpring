@@ -1,29 +1,31 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
-@Transactional
 class SchoolCacheTest {
 
     @Autowired
     private SchoolCache schoolCache;
-    @PersistenceContext
-    private EntityManager entityManager;
+
+    @BeforeEach
+    void setupCache() {
+        schoolCache.setMinCourseId(1);
+        schoolCache.setMaxCourseId(2);
+        schoolCache.setMinGroupId(1);
+        schoolCache.setMaxGroupId(2);
+        schoolCache.setMinStudentId(1);
+        schoolCache.setMaxStudentId(100);
+    }
 
     @Test
     void getMinCourseIdTest() {
@@ -33,7 +35,6 @@ class SchoolCacheTest {
 
     @Test
     void getMaxCourseIdTest() {
-        entityManager.persist(new Course("english", "english"));
         long maxCourseId = schoolCache.getMaxCourseId();
         assertEquals(2, maxCourseId);
     }
@@ -46,7 +47,6 @@ class SchoolCacheTest {
 
     @Test
     void getMaxGroupIdTest() {
-        entityManager.persist(new Group("test"));
         long maxGroupId = schoolCache.getMaxGroupId();
         assertEquals(2, maxGroupId);
     }
@@ -60,6 +60,6 @@ class SchoolCacheTest {
     @Test
     void getMaxStudentIdTest() {
         long maxStudentId = schoolCache.getMaxStudentId();
-        assertEquals(5, maxStudentId);
+        assertEquals(100, maxStudentId);
     }
 }

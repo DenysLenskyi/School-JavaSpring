@@ -13,6 +13,10 @@ public class JpaGroupDao extends JpaBaseDao {
             select g from Group g inner join g.students s 
             group by g.id, g.name
             having count(s.id) <= :numOfStudentId""";
+    private static final String SELECT_MAX_GROUP_ID =
+            "select max(g.id) from Group g";
+    private static final String SELECT_MIN_GROUP_ID =
+            "select min(g.id) from Group g";
 
     @Transactional
     public void addGroups(List<Group> groups) {
@@ -30,5 +34,31 @@ public class JpaGroupDao extends JpaBaseDao {
         return entityManager.createQuery(FIND_GROUPS_WITH_LESS_OR_EQUAL_NUM_STUDENTS_QUERY, Group.class)
                 .setParameter("numOfStudentId", numStudents)
                 .getResultList();
+    }
+
+    public long getMinGroupId() {
+        try {
+            Long minGroupId = entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult();
+            if (minGroupId != null) {
+                return minGroupId;
+            } else {
+                return 0;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public long getMaxGroupId() {
+        try {
+            Long maxGroupId = entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult();
+            if (maxGroupId != null) {
+                return maxGroupId;
+            } else {
+                return 0;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

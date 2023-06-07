@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 @Component
 public class DeleteStudentCommand implements Command {
@@ -17,10 +18,12 @@ public class DeleteStudentCommand implements Command {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JpaStudentDao jpaStudentDao;
+    private SchoolCache schoolCache;
 
     @Autowired
-    public DeleteStudentCommand(JpaStudentDao jpaStudentDao) {
+    public DeleteStudentCommand(JpaStudentDao jpaStudentDao, SchoolCache schoolCache) {
         this.jpaStudentDao = jpaStudentDao;
+        this.schoolCache = schoolCache;
     }
 
     @Override
@@ -28,6 +31,8 @@ public class DeleteStudentCommand implements Command {
         try {
             if (jpaStudentDao.doesStudentExist(commandHolder.getStudentId())) {
                 jpaStudentDao.deleteStudent(commandHolder.getStudentId());
+                schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
+                schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
                 System.out.println(STUDENT_DELETED);
                 log.info("Student with id={} deleted", commandHolder.getStudentId());
             } else {

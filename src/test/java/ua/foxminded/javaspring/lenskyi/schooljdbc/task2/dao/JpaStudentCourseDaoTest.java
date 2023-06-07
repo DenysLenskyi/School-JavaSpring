@@ -17,21 +17,22 @@ class JpaStudentCourseDaoTest {
     @Autowired
     private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
-    private SchoolCache schoolCache;
+    private JpaStudentDao jpaStudentDao;
+    @Autowired
+    private JpaCourseDao jpaCourseDao;
 
     @Test
     void doesStudentVisitTheCourseTrueTest() {
         final String insertIntoSchoolStudent =
                 "insert into school.student_course (student_id, course_id) values ("
-                        + schoolCache.getMinStudentId() + "," + schoolCache.getMinCourseId() + ")";
+                        + jpaStudentDao.getMinStudentId() + "," + jpaCourseDao.getMinCourseId() + ")";
         jpaStudentCourseDao.executeQuery(insertIntoSchoolStudent);
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(schoolCache.getMinStudentId(), "Math"));
-        final String deleteFromStudentCourse =
-                "delete from school.student_course where student_id =" + schoolCache.getMinStudentId();
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId(), "Math"));
     }
 
     @Test
     void doesStudentVisitTheCourseFalseTest() {
-        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(1534869, "Math"));
+        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMaxStudentId()+ 1,
+                "Math"));
     }
 }

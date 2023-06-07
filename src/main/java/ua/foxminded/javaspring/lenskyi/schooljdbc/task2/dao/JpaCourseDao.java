@@ -2,6 +2,8 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,11 @@ public class JpaCourseDao extends JpaBaseDao {
 
     public static final String FIND_BY_ID = "select c from Course c where c.id = :courseId";
     public static final String FIND_BY_NAME = "select c from Course c where c.name = :courseName";
+    private static final String SELECT_MAX_COURSE_ID =
+            "select max(c.id) from Course c";
+    private static final String SELECT_MIN_COURSE_ID =
+            "select min(c.id) from Course c";
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Transactional
     public void addCourses(List<Course> courses) {
@@ -40,7 +47,36 @@ public class JpaCourseDao extends JpaBaseDao {
                     .getSingleResult();
             return true;
         } catch (EntityNotFoundException | EmptyResultDataAccessException | NoResultException e) {
+            log.error(e.getMessage());
             return false;
+        }
+    }
+
+    public long getMinCourseId() {
+        try {
+            Long minCourseId = entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult();
+            if (minCourseId != null) {
+                return minCourseId;
+            } else {
+                return 0;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return 0;
+        }
+    }
+
+    public long getMaxCourseId() {
+        try {
+            Long maxCourseId = entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult();
+            if (maxCourseId != null) {
+                return maxCourseId;
+            } else {
+                return 0;
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return 0;
         }
     }
 }

@@ -16,16 +16,14 @@ class JpaStudentDaoTest {
 
     @Autowired
     private JpaStudentDao jpaStudentDao;
-    @Autowired
-    private SchoolCache schoolCache;
 
     @Test
     void doesStudentExistTrueTest() {
-        assertTrue(jpaStudentDao.doesStudentExist(schoolCache.getMinStudentId()));
+        assertTrue(jpaStudentDao.doesStudentExist(jpaStudentDao.getMinStudentId()));
     }
 
     @Test
     void doesStudentExistFalseTest() {
-        assertFalse(jpaStudentDao.doesStudentExist(schoolCache.getMaxStudentId() + 1));
+        assertFalse(jpaStudentDao.doesStudentExist(jpaStudentDao.getMaxStudentId() + 1));
     }
 }

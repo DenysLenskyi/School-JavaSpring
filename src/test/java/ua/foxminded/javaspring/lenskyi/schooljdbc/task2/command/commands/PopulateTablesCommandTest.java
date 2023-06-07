@@ -16,6 +16,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,7 @@ class PopulateTablesCommandTest {
     @BeforeEach
     void setup() {
         populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, jpaGroupDao, jpaStudentDao,
-                jpaStudentCourseDao, mockRandomDataCreator);
+                jpaStudentCourseDao, mockRandomDataCreator, schoolCache);
     }
 
     @Test
@@ -70,19 +71,13 @@ class PopulateTablesCommandTest {
         assertEquals(2, testGroups.size());
         assertEquals(6, testStudents.size());
         assertEquals(1, testStudentCourse.size());
-        jdbcCourseDao.executeQuery("delete from school.course where name = 'Sport';");
-        jpaGroupDao.executeQuery("delete from school.group where name = 'BB-00';");
-        jpaStudentDao.executeQuery("delete from school.student where first_name = 'Boris';");
-        jpaStudentCourseDao.executeQuery("delete from school.student_course where course_id = 2;");
     }
 
     private void setupRandomDataCreator() {
         List<Course> courses = List.of(new Course("Sport", "Sport descr"));
         List<Group> groups = List.of(new Group("BB-00"));
         List<Student> students = List.of(new Student(null, "Boris", "Jonsonuk"));
-        StudentCourse studentCourse = new StudentCourse(
-                entityManager.find(Student.class, schoolCache.getMinStudentId()),
-                entityManager.find(Course.class, schoolCache.getMinCourseId()));
+        StudentCourse studentCourse = new StudentCourse(students.get(0), courses.get(0));
         Set<StudentCourse> studentCourses = Set.of(studentCourse);
         when(mockRandomDataCreator.getCoursesFromResources()).thenReturn(courses);
         when(mockRandomDataCreator.generateGroups(isA(Integer.class))).thenReturn(groups);

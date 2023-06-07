@@ -9,7 +9,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.SchoolCache;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -30,11 +31,14 @@ class FindStudentsEnrolledToCourseCommandTest {
     @Autowired
     private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
+    private JpaStudentDao jpaStudentDao;
+    @Autowired
     private SchoolCache schoolCache;
 
     @BeforeEach
     void setUp() {
         System.setOut(new PrintStream(outputStreamCaptor));
+        schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
     }
 
     @AfterEach

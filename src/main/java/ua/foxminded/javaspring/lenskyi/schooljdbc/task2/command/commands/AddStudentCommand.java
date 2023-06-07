@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 @Component
 public class AddStudentCommand implements Command {
@@ -17,11 +18,13 @@ public class AddStudentCommand implements Command {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JpaStudentDao jpaStudentDao;
+    private SchoolCache schoolCache;
     private int maxGroupId = 10;
 
     @Autowired
-    public AddStudentCommand(JpaStudentDao jpaStudentDao) {
+    public AddStudentCommand(JpaStudentDao jpaStudentDao, SchoolCache schoolCache) {
         this.jpaStudentDao = jpaStudentDao;
+        this.schoolCache = schoolCache;
     }
 
     @Override
@@ -33,6 +36,8 @@ public class AddStudentCommand implements Command {
         } else {
             jpaStudentDao.addStudent(commandHolder.getGroupId(),
                     commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
+            schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
+            schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
             System.out.println(STUDENT_ADDED);
             log.info("Student {} {} added", commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
         }
