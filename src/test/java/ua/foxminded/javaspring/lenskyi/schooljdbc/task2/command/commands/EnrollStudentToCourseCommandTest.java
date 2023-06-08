@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -34,13 +34,11 @@ class EnrollStudentToCourseCommandTest {
     @Autowired
     private JpaStudentDao jpaStudentDao;
     @Autowired
-    private SchoolCache schoolCache;
+    private JpaCourseDao jpaCourseDao;
 
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
-        schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
     }
 
     @AfterEach
@@ -51,23 +49,24 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandCorrectTest() {
         //arranges
-        long studentId = schoolCache.getMinStudentId();
+        long studentId = jpaStudentDao.getMinStudentId().get();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(schoolCache.getMinStudentId(), expectedCourseName));
-        jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId().get(),
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
+        //jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 
     @Test
     void enrollStudentToCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMaxStudentId() + 1);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId().get() + 1);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
@@ -78,7 +77,7 @@ class EnrollStudentToCourseCommandTest {
     void enrollStudentToCourseCommandIncorrectCourseTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMinStudentId());
+        commandHolder.setStudentId(jpaStudentDao.getMinStudentId().get());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
@@ -91,16 +90,17 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandAlreadyEnrolledStudentTest() {
         //asserts
-        long studentId = schoolCache.getMinStudentId();
+        long studentId = jpaStudentDao.getMinStudentId().get();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId, expectedCourseName));
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
         assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
-        jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
+        //jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 }

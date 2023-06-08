@@ -6,10 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JpaCourseDao extends JpaBaseDao {
@@ -22,7 +22,6 @@ public class JpaCourseDao extends JpaBaseDao {
             "select min(c.id) from Course c";
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Transactional
     public void addCourses(List<Course> courses) {
         int batchSize = courses.size();
         for (int i = 0; i < courses.size(); i++) {
@@ -52,31 +51,11 @@ public class JpaCourseDao extends JpaBaseDao {
         }
     }
 
-    public long getMinCourseId() {
-        try {
-            Long minCourseId = entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult();
-            if (minCourseId != null) {
-                return minCourseId;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return 0;
-        }
+    public Optional<Long> getMinCourseId() {
+        return Optional.ofNullable(entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult());
     }
 
-    public long getMaxCourseId() {
-        try {
-            Long maxCourseId = entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult();
-            if (maxCourseId != null) {
-                return maxCourseId;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return 0;
-        }
+    public Optional<Long> getMaxCourseId() {
+        return Optional.ofNullable(entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult());
     }
 }

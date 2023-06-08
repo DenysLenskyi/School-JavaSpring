@@ -2,6 +2,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -10,13 +11,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.*;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.util.List;
 import java.util.Set;
@@ -40,18 +43,17 @@ class PopulateTablesCommandTest {
     private JpaStudentDao jpaStudentDao;
     @Autowired
     private JpaStudentCourseDao jpaStudentCourseDao;
-    @Autowired
-    private SchoolCache schoolCache;
     private PopulateTablesCommand populateTablesCommand;
     private RandomDataCreator mockRandomDataCreator = Mockito.mock(RandomDataCreator.class);
 
     @BeforeEach
     void setup() {
         populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, jpaGroupDao, jpaStudentDao,
-                jpaStudentCourseDao, mockRandomDataCreator, schoolCache);
+                jpaStudentCourseDao, mockRandomDataCreator);
     }
 
     @Test
+    @Transactional
     void populateTablesCommandTest() {
         //arranges
         setupRandomDataCreator();

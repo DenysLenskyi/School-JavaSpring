@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -28,14 +27,10 @@ class DeleteStudentCommandTest {
     private DeleteStudentCommand deleteStudentCommand;
     @Autowired
     private JpaStudentDao jpaStudentDao;
-    @Autowired
-    private SchoolCache schoolCache;
 
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
-        schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
     }
 
     @AfterEach
@@ -46,7 +41,7 @@ class DeleteStudentCommandTest {
     @Test
     void deleteStudentCorrectTest() {
         //arranges
-        long studentId = schoolCache.getMinStudentId();
+        long studentId = jpaStudentDao.getMinStudentId().get();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
         //act
@@ -54,15 +49,15 @@ class DeleteStudentCommandTest {
         //asserts
         assertEquals("Student deleted", outputStreamCaptor.toString().trim());
         assertFalse(jpaStudentDao.doesStudentExist(studentId));
-        jpaStudentDao.executeQuery("insert into school.student (group_id, first_name, last_name) values"+
-                "(null, 'Mark', 'Markson');");
+//        jpaStudentDao.executeQuery("insert into school.student (group_id, first_name, last_name) values"+
+//                "(null, 'Mark', 'Markson');");
     }
 
     @Test
     void deleteStudentNoSuchStudentIdTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMaxStudentId() + 1);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId().get() + 1);
         //act
         deleteStudentCommand.execute(commandHolder);
         //asserts

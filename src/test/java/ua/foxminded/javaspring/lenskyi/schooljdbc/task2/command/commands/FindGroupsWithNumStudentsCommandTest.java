@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ class FindGroupsWithNumStudentsCommandTest {
     }
 
     @Test
+    @Transactional
     void findGroupsWithNumStudentsTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolderBuilder();
@@ -51,6 +53,6 @@ class FindGroupsWithNumStudentsCommandTest {
         assertEquals("""
                 Groups with less or equal than 1 students
                 Group ID:  1 | Group name:  AA-00""", outputStreamCaptor.toString().trim());
-        jpaGroupDao.executeQuery("delete from school.student where group_id = 1");
+        //jpaGroupDao.executeQuery("delete from school.student where group_id = 1");
     }
 }

@@ -27,12 +27,12 @@ class JpaStudentCourseDaoTest {
                 "insert into school.student_course (student_id, course_id) values ("
                         + jpaStudentDao.getMinStudentId() + "," + jpaCourseDao.getMinCourseId() + ")";
         jpaStudentCourseDao.executeQuery(insertIntoSchoolStudent);
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId(), "Math"));
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId().get(), "Math"));
     }
 
     @Test
     void doesStudentVisitTheCourseFalseTest() {
-        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMaxStudentId()+ 1,
+        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMaxStudentId().get() + 1,
                 "Math"));
     }
 }

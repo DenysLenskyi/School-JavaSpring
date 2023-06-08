@@ -1,7 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import jakarta.persistence.NoResultException;
-import jakarta.transaction.Transactional;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-@Transactional
 public class JpaStudentCourseDao extends JpaBaseDao {
 
     public static final String INSERT_INTO_STUDENT_COURSES =
@@ -41,7 +39,6 @@ public class JpaStudentCourseDao extends JpaBaseDao {
                         where c.name = ?;
             """;
 
-    @Transactional
     public void addStudentsCourses(Set<StudentCourse> studentCourseSet) {
         studentCourseSet.forEach(studentCourse -> entityManager.createNativeQuery(INSERT_INTO_STUDENT_COURSES)
                 .setParameter(1, studentCourse.getStudent().getId())

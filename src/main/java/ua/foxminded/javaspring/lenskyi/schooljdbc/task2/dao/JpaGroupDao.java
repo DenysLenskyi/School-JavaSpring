@@ -1,10 +1,10 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JpaGroupDao extends JpaBaseDao {
@@ -18,7 +18,6 @@ public class JpaGroupDao extends JpaBaseDao {
     private static final String SELECT_MIN_GROUP_ID =
             "select min(g.id) from Group g";
 
-    @Transactional
     public void addGroups(List<Group> groups) {
         int batchSize = groups.size();
         for (int i = 0; i < groups.size(); i++) {
@@ -36,29 +35,11 @@ public class JpaGroupDao extends JpaBaseDao {
                 .getResultList();
     }
 
-    public long getMinGroupId() {
-        try {
-            Long minGroupId = entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult();
-            if (minGroupId != null) {
-                return minGroupId;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            return 0;
-        }
+    public Optional<Long> getMinGroupId() {
+        return Optional.ofNullable(entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult());
     }
 
-    public long getMaxGroupId() {
-        try {
-            Long maxGroupId = entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult();
-            if (maxGroupId != null) {
-                return maxGroupId;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            return 0;
-        }
+    public Optional<Long> getMaxGroupId() {
+        return Optional.ofNullable(entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult());
     }
 }

@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,9 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -21,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Transactional
 class RemoveStudentFromCourseCommandTest {
 
-    private final static String expectedCourseName = "Math";
     private final static String expectedIncorrectCourseName = "Wabalabubuduwoodoo";
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -32,15 +33,16 @@ class RemoveStudentFromCourseCommandTest {
     @Autowired
     private JpaStudentDao jpaStudentDao;
     @Autowired
-    private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
+    private JpaCourseDao jpaCourseDao;
     @Autowired
-    private SchoolCache schoolCache;
+    private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
+
+//    @Container
+//    public PostgreSQLContainer container = new PostgreSQLContainer<>("postgres:15-alpine");
 
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
-        schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
-        schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
     }
 
     @AfterEach
@@ -51,16 +53,17 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandCorrectTest() {
         //arranges
-        long studentId = schoolCache.getMinStudentId();
+        long studentId = jpaStudentDao.getMinStudentId().get();
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
         //asserts
-        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId, expectedCourseName));
+        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
         assertEquals("Student removed from the course", outputStreamCaptor.toString().trim());
     }
 
@@ -68,7 +71,7 @@ class RemoveStudentFromCourseCommandTest {
     void removeStudentFromCourseCommandIncorrectCourseTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMinStudentId());
+        commandHolder.setStudentId(jpaStudentDao.getMinStudentId().get());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
@@ -82,8 +85,8 @@ class RemoveStudentFromCourseCommandTest {
     void removeStudentFromCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(schoolCache.getMaxStudentId() + 1);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId().get() + 1);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
         //asserts
@@ -94,12 +97,12 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
         //arranges
-        long studentId = schoolCache.getMinStudentId();
+        long studentId = jpaStudentDao.getMinStudentId().get();
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
         removeStudentFromCourseCommand.execute(commandHolder);

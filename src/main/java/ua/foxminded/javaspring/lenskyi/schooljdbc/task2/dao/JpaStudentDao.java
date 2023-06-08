@@ -2,7 +2,6 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,9 +9,9 @@ import org.springframework.stereotype.Repository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-@Transactional
 public class JpaStudentDao extends JpaBaseDao {
 
     public static final String INSERT_INTO_STUDENT =
@@ -62,31 +61,11 @@ public class JpaStudentDao extends JpaBaseDao {
         }
     }
 
-    public long getMinStudentId() {
-        try {
-            Long minStudentId = entityManager.createQuery(SELECT_MIN_STUDENT_ID, Long.class).getSingleResult();
-            if (minStudentId != null) {
-                return minStudentId;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return 0;
-        }
+    public Optional<Long> getMinStudentId() {
+        return Optional.ofNullable(entityManager.createQuery(SELECT_MIN_STUDENT_ID, Long.class).getSingleResult());
     }
 
-    public long getMaxStudentId() {
-        try {
-            Long maxStudentId = entityManager.createQuery(SELECT_MAX_STUDENT_ID, Long.class).getSingleResult();
-            if (maxStudentId != null) {
-                return maxStudentId;
-            } else {
-                return 0;
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return 0;
-        }
+    public Optional<Long> getMaxStudentId() {
+        return Optional.ofNullable(entityManager.createQuery(SELECT_MAX_STUDENT_ID, Long.class).getSingleResult());
     }
 }

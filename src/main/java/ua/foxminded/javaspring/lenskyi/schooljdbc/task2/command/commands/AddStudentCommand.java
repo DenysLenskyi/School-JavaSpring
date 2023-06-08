@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +8,9 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 @Component
+@Transactional
 public class AddStudentCommand implements Command {
 
     private static final String STUDENT_ADDED = "Student added";
@@ -18,13 +19,11 @@ public class AddStudentCommand implements Command {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JpaStudentDao jpaStudentDao;
-    private SchoolCache schoolCache;
     private int maxGroupId = 10;
 
     @Autowired
-    public AddStudentCommand(JpaStudentDao jpaStudentDao, SchoolCache schoolCache) {
+    public AddStudentCommand(JpaStudentDao jpaStudentDao) {
         this.jpaStudentDao = jpaStudentDao;
-        this.schoolCache = schoolCache;
     }
 
     @Override
@@ -36,8 +35,6 @@ public class AddStudentCommand implements Command {
         } else {
             jpaStudentDao.addStudent(commandHolder.getGroupId(),
                     commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
-            schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
-            schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
             System.out.println(STUDENT_ADDED);
             log.info("Student {} {} added", commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
         }

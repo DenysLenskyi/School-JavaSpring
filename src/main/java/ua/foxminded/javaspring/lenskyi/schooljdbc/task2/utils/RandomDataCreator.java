@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
@@ -22,14 +23,14 @@ public class RandomDataCreator {
     private static final String SELECT_ALL_COURSES = "select c from Course c";
     private FileReader reader;
     private Random secureRandom;
-    @Autowired
-    private SchoolCache schoolCache;
     @Value("${filename.names}")
-    private String NAMES;
+    private String names;
     @Value("${filename.courses}")
-    private String COURSES;
+    private String courses;
     @PersistenceContext
     private EntityManager entityManager;
+    @Autowired
+    private JpaGroupDao jpaGroupDao;
 
     @Autowired
     public RandomDataCreator(FileReader reader, Random secureRandom) {
@@ -74,15 +75,15 @@ public class RandomDataCreator {
 
     public List<Student> generateStudents(int numStudents) {
         List<Student> students = new ArrayList<>();
-        String[] names = reader.readFile(NAMES).split(SEMICOLON);
+        String[] namesArray = reader.readFile(this.names).split(SEMICOLON);
         for (int i = 1; i <= numStudents; i++) {
             Student student = new Student();
             student.setGroupId(null);
-            student.setFirstName(generateStudentFirstName(names));
-            student.setLastName(generateStudentLastName(names));
+            student.setFirstName(generateStudentFirstName(namesArray));
+            student.setLastName(generateStudentLastName(namesArray));
             students.add(student);
         }
-        assignStudentsToGroups(students, 10, Math.toIntExact(schoolCache.getMinGroupId()));
+        assignStudentsToGroups(students, 10, Math.toIntExact(jpaGroupDao.getMinGroupId().get()));
         return students;
     }
 
@@ -120,11 +121,11 @@ public class RandomDataCreator {
     public Set<StudentCourse> enrollStudentsToCourses() {
         Set<StudentCourse> studentsCourses = new HashSet<>();
         List<Student> students = entityManager.createQuery(SELECT_ALL_STUDENTS).getResultList();
-        List<Course> courses = entityManager.createQuery(SELECT_ALL_COURSES).getResultList();
+        List<Course> coursesList = entityManager.createQuery(SELECT_ALL_COURSES).getResultList();
         students.forEach(student -> {
             int numCourses = secureRandom.nextInt(1, 4);
             while (numCourses > 0) {
-                studentsCourses.add(new StudentCourse(student, courses.get(secureRandom.nextInt(courses.size()))));
+                studentsCourses.add(new StudentCourse(student, coursesList.get(secureRandom.nextInt(coursesList.size()))));
                 numCourses--;
             }
         });
@@ -132,15 +133,15 @@ public class RandomDataCreator {
     }
 
     public List<Course> getCoursesFromResources() {
-        List<Course> courses = new ArrayList<>();
-        String[] coursesWithDescription = reader.readFile(COURSES).split(SEMICOLON);
+        List<Course> coursesList = new ArrayList<>();
+        String[] coursesWithDescription = reader.readFile(this.courses).split(SEMICOLON);
         for (String courseWithDescription : coursesWithDescription) {
             String[] str = courseWithDescription.split(WHITESPACE_HYPHEN_WHITESPACE);
             Course course = new Course();
             course.setName(str[0]);
             course.setDescription(str[1]);
-            courses.add(course);
+            coursesList.add(course);
         }
-        return courses;
+        return coursesList;
     }
 }

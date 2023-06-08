@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +8,9 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.SchoolCache;
 
 @Component
+@Transactional
 public class DeleteStudentCommand implements Command {
 
     private static final String STUDENT_DOES_NOT_EXIST = "Can't find this student id...";
@@ -18,12 +19,10 @@ public class DeleteStudentCommand implements Command {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JpaStudentDao jpaStudentDao;
-    private SchoolCache schoolCache;
 
     @Autowired
-    public DeleteStudentCommand(JpaStudentDao jpaStudentDao, SchoolCache schoolCache) {
+    public DeleteStudentCommand(JpaStudentDao jpaStudentDao) {
         this.jpaStudentDao = jpaStudentDao;
-        this.schoolCache = schoolCache;
     }
 
     @Override
@@ -31,8 +30,6 @@ public class DeleteStudentCommand implements Command {
         try {
             if (jpaStudentDao.doesStudentExist(commandHolder.getStudentId())) {
                 jpaStudentDao.deleteStudent(commandHolder.getStudentId());
-                schoolCache.setMinStudentId(jpaStudentDao.getMinStudentId());
-                schoolCache.setMaxStudentId(jpaStudentDao.getMaxStudentId());
                 System.out.println(STUDENT_DELETED);
                 log.info("Student with id={} deleted", commandHolder.getStudentId());
             } else {

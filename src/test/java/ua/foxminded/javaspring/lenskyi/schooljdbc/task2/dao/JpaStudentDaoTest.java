@@ -19,11 +19,11 @@ class JpaStudentDaoTest {
 
     @Test
     void doesStudentExistTrueTest() {
-        assertTrue(jpaStudentDao.doesStudentExist(jpaStudentDao.getMinStudentId()));
+        assertTrue(jpaStudentDao.doesStudentExist(jpaStudentDao.getMinStudentId().get()));
     }
 
     @Test
     void doesStudentExistFalseTest() {
-        assertFalse(jpaStudentDao.doesStudentExist(jpaStudentDao.getMaxStudentId() + 1));
+        assertFalse(jpaStudentDao.doesStudentExist(jpaStudentDao.getMaxStudentId().get() + 1));
     }
 }
