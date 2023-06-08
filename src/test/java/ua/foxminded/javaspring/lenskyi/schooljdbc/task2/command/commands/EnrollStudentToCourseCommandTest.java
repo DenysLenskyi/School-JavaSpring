@@ -2,6 +2,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Order(4)
 class EnrollStudentToCourseCommandTest {
 
-    private final static String expectedCourseName = "Math";
     private final static String expectedIncorrectCourseName = "Numerology";
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -58,7 +59,6 @@ class EnrollStudentToCourseCommandTest {
         //asserts
         assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId().get(),
                 jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
-        //jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 
     @Test
@@ -101,6 +101,5 @@ class EnrollStudentToCourseCommandTest {
         assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
                 jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
         assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
-        //jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 }

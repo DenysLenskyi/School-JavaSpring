@@ -1,5 +1,7 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Transactional
+@Order(3)
 class JpaStudentCourseDaoTest {
 
     @Autowired
@@ -23,11 +27,13 @@ class JpaStudentCourseDaoTest {
 
     @Test
     void doesStudentVisitTheCourseTrueTest() {
+        long studentId = jpaStudentDao.getMinStudentId().get() + 2;
         final String insertIntoSchoolStudent =
                 "insert into school.student_course (student_id, course_id) values ("
-                        + jpaStudentDao.getMinStudentId() + "," + jpaCourseDao.getMinCourseId() + ")";
+                        + studentId + "," + jpaCourseDao.getMinCourseId().get() + ")";
         jpaStudentCourseDao.executeQuery(insertIntoSchoolStudent);
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId().get(), "Math"));
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
     }
 
     @Test

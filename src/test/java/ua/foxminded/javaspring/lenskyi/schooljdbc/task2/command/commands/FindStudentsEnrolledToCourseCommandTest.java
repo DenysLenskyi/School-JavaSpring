@@ -3,6 +3,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Order(2)
 class FindStudentsEnrolledToCourseCommandTest {
 
     private static final String expectedIncorrectCourseName = "Numerology";
@@ -49,7 +51,7 @@ class FindStudentsEnrolledToCourseCommandTest {
     @Transactional
     void findStudentsEnrolledToCourseCommandCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId().get();
+        long studentId = jpaStudentDao.getMinStudentId().get() + 1;
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();

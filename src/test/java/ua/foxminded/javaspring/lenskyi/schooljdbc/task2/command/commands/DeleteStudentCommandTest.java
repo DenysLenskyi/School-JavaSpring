@@ -41,7 +41,7 @@ class DeleteStudentCommandTest {
     @Test
     void deleteStudentCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId().get();
+        long studentId = jpaStudentDao.getMaxStudentId().get() - 1;
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
         //act

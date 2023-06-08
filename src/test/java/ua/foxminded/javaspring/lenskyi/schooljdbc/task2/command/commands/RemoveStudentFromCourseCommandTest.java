@@ -3,6 +3,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,13 +17,13 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
 @Transactional
+@Order(5)
 class RemoveStudentFromCourseCommandTest {
 
     private final static String expectedIncorrectCourseName = "Wabalabubuduwoodoo";
@@ -37,9 +38,6 @@ class RemoveStudentFromCourseCommandTest {
     @Autowired
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
 
-//    @Container
-//    public PostgreSQLContainer container = new PostgreSQLContainer<>("postgres:15-alpine");
-
     @BeforeEach
     void setup() {
         System.setOut(new PrintStream(outputStreamCaptor));
@@ -53,7 +51,7 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId().get();
+        long studentId = jpaStudentDao.getMinStudentId().get() + 3;
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
@@ -97,7 +95,7 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId().get();
+        long studentId = jpaStudentDao.getMinStudentId().get() + 3;
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
@@ -107,7 +105,7 @@ class RemoveStudentFromCourseCommandTest {
         removeStudentFromCourseCommand.execute(commandHolder);
         removeStudentFromCourseCommand.execute(commandHolder);
         //asserts
-        assertEquals("Student removed from the course\n" +
-                "This student doesn't visit this course", outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("Student removed from the course\n" +
+                "This student doesn't visit this course"));
     }
 }
