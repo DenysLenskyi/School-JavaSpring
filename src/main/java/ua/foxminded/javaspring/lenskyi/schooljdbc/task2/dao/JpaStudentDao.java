@@ -24,14 +24,7 @@ public class JpaStudentDao extends JpaBaseDao {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public void addStudents(List<Student> students) {
-        int batchSize = students.size();
-        for (int i = 0; i < students.size(); i++) {
-            if (i > 0 && i % batchSize == 0) {
-                entityManager.flush();
-                entityManager.clear();
-            }
-            entityManager.persist(students.get(i));
-        }
+        students.forEach(entityManager::persist);
     }
 
     public void addStudent(Long groupId, String firstName, String lastName) {
@@ -62,10 +55,14 @@ public class JpaStudentDao extends JpaBaseDao {
     }
 
     public Optional<Long> getMinStudentId() {
-        return Optional.ofNullable(entityManager.createQuery(SELECT_MIN_STUDENT_ID, Long.class).getSingleResult());
+        try {
+            return Optional.of(entityManager.createQuery(SELECT_MIN_STUDENT_ID, Long.class).getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     public Optional<Long> getMaxStudentId() {
-        return Optional.ofNullable(entityManager.createQuery(SELECT_MAX_STUDENT_ID, Long.class).getSingleResult());
+        return Optional.of(entityManager.createQuery(SELECT_MAX_STUDENT_ID, Long.class).getSingleResult());
     }
 }

@@ -23,14 +23,7 @@ public class JpaCourseDao extends JpaBaseDao {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public void addCourses(List<Course> courses) {
-        int batchSize = courses.size();
-        for (int i = 0; i < courses.size(); i++) {
-            if (i > 0 && i % batchSize == 0) {
-                entityManager.flush();
-                entityManager.clear();
-            }
-            entityManager.persist(courses.get(i));
-        }
+        courses.forEach(entityManager::persist);
     }
 
     public Course findCourseById(long courseId) {
@@ -52,10 +45,10 @@ public class JpaCourseDao extends JpaBaseDao {
     }
 
     public Optional<Long> getMinCourseId() {
-        return Optional.ofNullable(entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult());
+        return Optional.of(entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult());
     }
 
     public Optional<Long> getMaxCourseId() {
-        return Optional.ofNullable(entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult());
+        return Optional.of(entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult());
     }
 }

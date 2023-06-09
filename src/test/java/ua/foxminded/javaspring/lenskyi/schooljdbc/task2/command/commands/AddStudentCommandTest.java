@@ -58,7 +58,16 @@ class AddStudentCommandTest {
         addStudentCommand.execute(commandHolder);
         //asserts
         assertEquals(EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED, outputStreamCaptor.toString().trim());
-        //jpaStudentDao.executeQuery("delete from school.student where first_name='Mark10'");
+    }
+
+    @Test
+    void addStudentCorrectZeroGroupIdTest() {
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setGroupId(0L);
+        commandHolder.setStudentFirstName(EXPECTED_FIRST_NAME_10);
+        commandHolder.setStudentLastName(EXPECTED_SECOND_NAME);
+        addStudentCommand.execute(commandHolder);
+        assertEquals(EXPECTED_SYSTEM_OUT_IF_STUDENT_ADDED, outputStreamCaptor.toString().trim());
     }
 
     @Test

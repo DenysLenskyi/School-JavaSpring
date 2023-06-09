@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 
 @Component
@@ -19,16 +20,27 @@ public class AddStudentCommand implements Command {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private JpaStudentDao jpaStudentDao;
-    private int maxGroupId = 10;
+    private JpaGroupDao jpaGroupDao;
+    private long maxGroupId;
+    private long minGroupId;
 
     @Autowired
-    public AddStudentCommand(JpaStudentDao jpaStudentDao) {
+    public AddStudentCommand(JpaStudentDao jpaStudentDao, JpaGroupDao jpaGroupDao) {
         this.jpaStudentDao = jpaStudentDao;
+        this.jpaGroupDao = jpaGroupDao;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if ((commandHolder.getGroupId() > maxGroupId) || (commandHolder.getGroupId() < 0)) {
+        jpaGroupDao.getMaxGroupId().ifPresent(value -> maxGroupId = value);
+        jpaGroupDao.getMinGroupId().ifPresent(value -> minGroupId = value);
+        if (commandHolder.getGroupId() == 0) {
+            jpaStudentDao.addStudent(null, commandHolder.getStudentFirstName(),
+                    commandHolder.getStudentLastName());
+            System.out.println(STUDENT_ADDED);
+            log.info("Student {} {} added with null group id",
+                    commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
+        } else if ((commandHolder.getGroupId() > maxGroupId) || (commandHolder.getGroupId() < minGroupId)) {
             System.out.println(INCORRECT_GROUP_ID);
             System.out.println(STUDENT_NOT_ADDED);
             log.warn("Student not added. Reason: wrong group id - {}", commandHolder.getGroupId());

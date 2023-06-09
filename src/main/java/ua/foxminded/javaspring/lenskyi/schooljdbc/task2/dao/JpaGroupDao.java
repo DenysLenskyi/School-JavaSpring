@@ -19,14 +19,7 @@ public class JpaGroupDao extends JpaBaseDao {
             "select min(g.id) from Group g";
 
     public void addGroups(List<Group> groups) {
-        int batchSize = groups.size();
-        for (int i = 0; i < groups.size(); i++) {
-            if (i > 0 && i % batchSize == 0) {
-                entityManager.flush();
-                entityManager.clear();
-            }
-            entityManager.persist(groups.get(i));
-        }
+        groups.forEach(entityManager::persist);
     }
 
     public List<Group> findGroupsWithNumStudents(int numStudents) {
@@ -36,10 +29,10 @@ public class JpaGroupDao extends JpaBaseDao {
     }
 
     public Optional<Long> getMinGroupId() {
-        return Optional.ofNullable(entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult());
+        return Optional.of(entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult());
     }
 
     public Optional<Long> getMaxGroupId() {
-        return Optional.ofNullable(entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult());
+        return Optional.of(entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult());
     }
 }

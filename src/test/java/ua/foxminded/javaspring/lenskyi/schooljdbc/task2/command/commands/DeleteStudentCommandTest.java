@@ -49,8 +49,6 @@ class DeleteStudentCommandTest {
         //asserts
         assertEquals("Student deleted", outputStreamCaptor.toString().trim());
         assertFalse(jpaStudentDao.doesStudentExist(studentId));
-//        jpaStudentDao.executeQuery("insert into school.student (group_id, first_name, last_name) values"+
-//                "(null, 'Mark', 'Markson');");
     }
 
     @Test
@@ -62,5 +60,11 @@ class DeleteStudentCommandTest {
         deleteStudentCommand.execute(commandHolder);
         //asserts
         assertEquals("Can't find this student id...", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    void deleteStudentIncorrectInputTest() {
+        deleteStudentCommand.execute(null);
+        assertEquals("Student not deleted, check your input", outputStreamCaptor.toString().trim());
     }
 }

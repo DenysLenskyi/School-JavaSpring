@@ -10,7 +10,7 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CommandDefendantTest {
+class CommandCorrelationTest {
 
     @InjectMocks
     CommandCorrelation commandDefendant;
