@@ -50,23 +50,23 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId().get();
+        long studentId = jpaStudentDao.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId().get(),
-                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId(),
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
     }
 
     @Test
     void enrollStudentToCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId().get() + 1);
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
@@ -77,7 +77,7 @@ class EnrollStudentToCourseCommandTest {
     void enrollStudentToCourseCommandIncorrectCourseTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(jpaStudentDao.getMinStudentId().get());
+        commandHolder.setStudentId(jpaStudentDao.getMinStudentId());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
@@ -90,16 +90,16 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandAlreadyEnrolledStudentTest() {
         //asserts
-        long studentId = jpaStudentDao.getMinStudentId().get();
+        long studentId = jpaStudentDao.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
         assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
-                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
         assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
     }
 }

@@ -51,17 +51,16 @@ class FindStudentsEnrolledToCourseCommandTest {
     @Transactional
     void findStudentsEnrolledToCourseCommandCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId().get() + 1;
+        long studentId = jpaStudentDao.getMinStudentId() + 1;
         jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName());
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         findStudentsEnrolledToCourseCommand.execute(commandHolder);
         //asserts
         assertEquals("Student ID: " + studentId +
                 " | Student name: Mark Markson", outputStreamCaptor.toString().trim());
-        //jpaStudentCourseDao.executeQuery("delete from school.student_course where student_id = " + studentId);
     }
 
     @Test

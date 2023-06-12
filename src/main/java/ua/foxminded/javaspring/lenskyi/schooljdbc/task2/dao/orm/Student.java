@@ -2,6 +2,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -21,7 +22,7 @@ public class Student {
     @JoinColumn(name = "group_id", insertable = false, updatable = false)
     private Group group;
     @OneToMany(mappedBy = "student")
-    Set<StudentCourse> studentCourse;
+    private Set<StudentCourse> studentCourse;
 
     public Student() {
     }
@@ -40,7 +41,7 @@ public class Student {
         this.id = id;
     }
 
-    public long getGroupId() {
+    public Long getGroupId() {
         return groupId;
     }
 
@@ -62,5 +63,19 @@ public class Student {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Student student)) return false;
+        return getId() == student.getId() && Objects.equals(getGroupId(), student.getGroupId()) &&
+                Objects.equals(getFirstName(), student.getFirstName()) &&
+                Objects.equals(getLastName(), student.getLastName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getGroupId(), getFirstName(), getLastName());
     }
 }

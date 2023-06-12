@@ -21,8 +21,6 @@ public class AddStudentCommand implements Command {
 
     private JpaStudentDao jpaStudentDao;
     private JpaGroupDao jpaGroupDao;
-    private long maxGroupId;
-    private long minGroupId;
 
     @Autowired
     public AddStudentCommand(JpaStudentDao jpaStudentDao, JpaGroupDao jpaGroupDao) {
@@ -32,8 +30,8 @@ public class AddStudentCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        jpaGroupDao.getMaxGroupId().ifPresent(value -> maxGroupId = value);
-        jpaGroupDao.getMinGroupId().ifPresent(value -> minGroupId = value);
+        Long maxGroupId = jpaGroupDao.getMaxGroupId();
+        Long minGroupId = jpaGroupDao.getMinGroupId();
         if (commandHolder.getGroupId() == 0) {
             jpaStudentDao.addStudent(null, commandHolder.getStudentFirstName(),
                     commandHolder.getStudentLastName());

@@ -1,10 +1,10 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
+import jakarta.persistence.PersistenceException;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class JpaGroupDao extends JpaBaseDao {
@@ -28,11 +28,19 @@ public class JpaGroupDao extends JpaBaseDao {
                 .getResultList();
     }
 
-    public Optional<Long> getMinGroupId() {
-        return Optional.of(entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult());
+    public Long getMinGroupId() {
+        try {
+            return entityManager.createQuery(SELECT_MIN_GROUP_ID, Long.class).getSingleResult();
+        } catch (PersistenceException e) {
+            return 0L;
+        }
     }
 
-    public Optional<Long> getMaxGroupId() {
-        return Optional.of(entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult());
+    public Long getMaxGroupId() {
+        try {
+            return entityManager.createQuery(SELECT_MAX_GROUP_ID, Long.class).getSingleResult();
+        } catch (PersistenceException e) {
+            return 0L;
+        }
     }
 }

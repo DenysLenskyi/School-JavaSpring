@@ -50,12 +50,12 @@ public class InfoCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        long minCourseId = jpaCourseDao.getMinCourseId().get();
-        long maxCourseId = jpaCourseDao.getMaxCourseId().get();
-        long minGroupId = jpaGroupDao.getMinGroupId().get();
-        long maxGroupId = jpaGroupDao.getMaxGroupId().get();
-        long minStudentId = jpaStudentDao.getMinStudentId().get();
-        long maxStudentId = jpaStudentDao.getMaxStudentId().get();
+        Long minCourseId = jpaCourseDao.getMinCourseId();
+        Long maxCourseId = jpaCourseDao.getMaxCourseId();
+        Long minGroupId = jpaGroupDao.getMinGroupId();
+        Long maxGroupId = jpaGroupDao.getMaxGroupId();
+        Long minStudentId = jpaStudentDao.getMinStudentId();
+        Long maxStudentId = jpaStudentDao.getMaxStudentId();
         System.out.println(String.format(FORMAT,
                 INFO_LINE_1, minCourseId, maxCourseId,
                 INFO_LINE_2, minGroupId, maxGroupId,

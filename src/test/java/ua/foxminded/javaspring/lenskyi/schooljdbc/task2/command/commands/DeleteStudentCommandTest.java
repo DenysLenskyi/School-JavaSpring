@@ -41,7 +41,7 @@ class DeleteStudentCommandTest {
     @Test
     void deleteStudentCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMaxStudentId().get() - 1;
+        long studentId = jpaStudentDao.getMaxStudentId() - 1;
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
         //act
@@ -55,7 +55,7 @@ class DeleteStudentCommandTest {
     void deleteStudentNoSuchStudentIdTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId().get() + 1);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
         //act
         deleteStudentCommand.execute(commandHolder);
         //asserts

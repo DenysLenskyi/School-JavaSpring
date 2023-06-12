@@ -2,6 +2,7 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class JpaCourseDao extends JpaBaseDao {
@@ -44,11 +44,19 @@ public class JpaCourseDao extends JpaBaseDao {
         }
     }
 
-    public Optional<Long> getMinCourseId() {
-        return Optional.of(entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult());
+    public Long getMinCourseId() {
+        try {
+            return entityManager.createQuery(SELECT_MIN_COURSE_ID, Long.class).getSingleResult();
+        } catch (PersistenceException e) {
+            return 0L;
+        }
     }
 
-    public Optional<Long> getMaxCourseId() {
-        return Optional.of(entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult());
+    public Long getMaxCourseId() {
+        try {
+            return entityManager.createQuery(SELECT_MAX_COURSE_ID, Long.class).getSingleResult();
+        } catch (PersistenceException e) {
+            return 0L;
+        }
     }
 }

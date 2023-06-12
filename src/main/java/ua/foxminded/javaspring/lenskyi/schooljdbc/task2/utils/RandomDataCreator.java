@@ -83,7 +83,7 @@ public class RandomDataCreator {
             student.setLastName(generateStudentLastName(namesArray));
             students.add(student);
         }
-        assignStudentsToGroups(students, 10, Math.toIntExact(jpaGroupDao.getMinGroupId().get()));
+        assignStudentsToGroups(students, 10, Math.toIntExact(jpaGroupDao.getMinGroupId()));
         return students;
     }
 

@@ -27,18 +27,18 @@ class JpaStudentCourseDaoTest {
 
     @Test
     void doesStudentVisitTheCourseTrueTest() {
-        long studentId = jpaStudentDao.getMinStudentId().get() + 2;
+        long studentId = jpaStudentDao.getMinStudentId() + 2;
         final String insertIntoSchoolStudent =
                 "insert into school.student_course (student_id, course_id) values ("
-                        + studentId + "," + jpaCourseDao.getMinCourseId().get() + ")";
+                        + studentId + "," + jpaCourseDao.getMinCourseId() + ")";
         jpaStudentCourseDao.executeQuery(insertIntoSchoolStudent);
         assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
-                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId().get()).getName()));
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
     }
 
     @Test
     void doesStudentVisitTheCourseFalseTest() {
-        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMaxStudentId().get() + 1,
+        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMaxStudentId() + 1,
                 "Math"));
     }
 }
