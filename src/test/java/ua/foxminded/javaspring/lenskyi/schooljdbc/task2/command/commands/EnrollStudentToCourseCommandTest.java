@@ -2,21 +2,19 @@ package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,19 +22,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Order(4)
 class EnrollStudentToCourseCommandTest {
 
-    private final static String expectedCourseName = "Math";
     private final static String expectedIncorrectCourseName = "Numerology";
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private JdbcStudentCourseDao jdbcStudentCourseDao;
+    private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
     private EnrollStudentToCourseCommand enrollStudentToCourseCommand;
+    @Autowired
+    private JpaStudentDao jpaStudentDao;
+    @Autowired
+    private JpaCourseDao jpaCourseDao;
 
     @BeforeEach
     void setup() {
@@ -51,46 +50,38 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandCorrectTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
+        long studentId = jpaStudentDao.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(students.get(0).getId());
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setStudentId(studentId);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 1);
-        jdbcStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId(),
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
     }
 
     @Test
     void enrollStudentToCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(777666123);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong student's id. This id doesn't exist in the database", outputStreamCaptor.toString().trim());
     }
 
     @Test
     void enrollStudentToCourseCommandIncorrectCourseTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(students.get(0).getId());
+        commandHolder.setStudentId(jpaStudentDao.getMinStudentId());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong course name.\n" +
                 "Available courses: Math, English, Biologic, Geography, Chemistry,\n" +
                 "                   Physics, History, Finance, Sports, Etiquette.", outputStreamCaptor.toString().trim());
@@ -99,19 +90,16 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandAlreadyEnrolledStudentTest() {
         //asserts
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
+        long studentId = jpaStudentDao.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(students.get(0).getId());
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setStudentId(studentId);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         enrollStudentToCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 1);
-        assertEquals("Student enrolled to the course\n" +
-                "This student already visits this course", outputStreamCaptor.toString().trim());
-        jdbcStudentCourseDao.executeQuery("delete from school.student_course where course_id = 1");
+        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
+        assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
     }
 }

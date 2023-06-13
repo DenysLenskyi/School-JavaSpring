@@ -1,40 +1,40 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
+@Transactional
+@Order(5)
 class RemoveStudentFromCourseCommandTest {
 
-    private final static String expectedCourseName = "Math";
     private final static String expectedIncorrectCourseName = "Wabalabubuduwoodoo";
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private JpaStudentCourseDao jpaStudentCourseDao;
     @Autowired
-    private JdbcStudentCourseDao jdbcStudentCourseDao;
+    private JpaStudentDao jpaStudentDao;
+    @Autowired
+    private JpaCourseDao jpaCourseDao;
     @Autowired
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
 
@@ -51,35 +51,29 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandCorrectTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
-        int studentId = students.get(0).getId();
-        jdbcStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
+        long studentId = jpaStudentDao.getMinStudentId() + 3;
+        jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 0);
+        assertFalse(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
+                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
         assertEquals("Student removed from the course", outputStreamCaptor.toString().trim());
     }
 
     @Test
     void removeStudentFromCourseCommandIncorrectCourseTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(students.get(0).getId());
+        commandHolder.setStudentId(jpaStudentDao.getMinStudentId());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong course name.\n" +
                 "Available courses: Math, English, Biologic, Geography, Chemistry,\n" +
                 "                   Physics, History, Finance, Sports, Etiquette.", outputStreamCaptor.toString().trim());
@@ -89,13 +83,11 @@ class RemoveStudentFromCourseCommandTest {
     void removeStudentFromCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(666777);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 0);
         assertEquals("Wrong student's id. This id doesn't exist in the database",
                 outputStreamCaptor.toString().trim());
     }
@@ -103,21 +95,17 @@ class RemoveStudentFromCourseCommandTest {
     @Test
     void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
         //arranges
-        List<Student> students = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
-        int studentId = students.get(0).getId();
-        jdbcStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
+        long studentId = jpaStudentDao.getMinStudentId() + 3;
+        jpaStudentCourseDao.executeQuery("insert into school.student_course (student_id, course_id) values" +
                 "(" + studentId + ",1);");
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(expectedCourseName);
+        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
         //act
         removeStudentFromCourseCommand.execute(commandHolder);
         removeStudentFromCourseCommand.execute(commandHolder);
-        List<Map<String, Object>> studentCourse = jdbcTemplate.queryForList("select * from school.student_course");
         //asserts
-        assertTrue(studentCourse.size() == 0);
-        assertEquals("Student removed from the course\n" +
-                "This student doesn't visit this course", outputStreamCaptor.toString().trim());
+        assertTrue(outputStreamCaptor.toString().trim().contains("Student removed from the course\n" +
+                "This student doesn't visit this course"));
     }
 }

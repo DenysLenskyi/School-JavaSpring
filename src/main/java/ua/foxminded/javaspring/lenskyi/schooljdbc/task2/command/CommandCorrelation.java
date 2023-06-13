@@ -55,7 +55,9 @@ public class CommandCorrelation {
     }
 
     public Command getCommandByCode(String code) {
-        setCommandCode();
+        if (getCommandCode().isEmpty()) {
+            setCommandCode();
+        }
         if (commandCode.containsKey(code)) {
             return commandCode.get(code);
         } else {

@@ -24,16 +24,16 @@ public class UserInteraction implements CommandLineRunner {
     private static final String INCORRECT_INPUT = "Incorrect input data";
     private static final String CAN_NOT_BUILD_COMMAND_FROM_INPUT = "Can't build command, check your input";
     private final Logger log = LoggerFactory.getLogger(UserInteraction.class);
-    private CommandCorrelation commandDefendant;
+    private CommandCorrelation commandCorrelation;
     private CommandHolder commandHolder;
     private PopulateTablesCommand populateTablesCommand;
     @Autowired
     private DataSource dataSource;
 
     @Autowired
-    public UserInteraction(CommandCorrelation commandDefendant, CommandHolder commandHolder,
+    public UserInteraction(CommandCorrelation commandCorrelation, CommandHolder commandHolder,
                            PopulateTablesCommand populateTablesCommand) {
-        this.commandDefendant = commandDefendant;
+        this.commandCorrelation = commandCorrelation;
         this.commandHolder = commandHolder;
         this.populateTablesCommand = populateTablesCommand;
     }
@@ -56,7 +56,7 @@ public class UserInteraction implements CommandLineRunner {
                 System.out.println(CAN_NOT_BUILD_COMMAND_FROM_INPUT);
             }
             try {
-                commandDefendant.getCommandByCode(commandHolder.getCommandName()).execute(commandHolder);
+                executeCommand(commandHolder);
             } catch (Exception e) {
                 System.out.println(INCORRECT_INPUT);
                 log.error(e.getMessage());
@@ -73,5 +73,10 @@ public class UserInteraction implements CommandLineRunner {
                 .callbacks(new ExampleFlywayCallback())
                 .load();
         flyway.migrate();
+    }
+
+    @Transactional
+    void executeCommand(CommandHolder commandHolder) {
+        commandCorrelation.getCommandByCode(commandHolder.getCommandName()).execute(commandHolder);
     }
 }

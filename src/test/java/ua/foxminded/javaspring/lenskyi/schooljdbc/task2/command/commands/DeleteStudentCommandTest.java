@@ -5,19 +5,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.rowMapper.StudentRowMapper;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -29,10 +26,7 @@ class DeleteStudentCommandTest {
     @Autowired
     private DeleteStudentCommand deleteStudentCommand;
     @Autowired
-    private JdbcStudentDao jdbcStudentDao;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private JpaStudentDao jpaStudentDao;
 
     @BeforeEach
     void setup() {
@@ -47,34 +41,30 @@ class DeleteStudentCommandTest {
     @Test
     void deleteStudentCorrectTest() {
         //arranges
-        List<Student> studentsBeforeDelete = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
+        long studentId = jpaStudentDao.getMaxStudentId() - 1;
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(studentsBeforeDelete.get(0).getId());
+        commandHolder.setStudentId(studentId);
         //act
         deleteStudentCommand.execute(commandHolder);
-        List<Student> studentsAfterDelete = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
         //asserts
         assertEquals("Student deleted", outputStreamCaptor.toString().trim());
-        assertEquals(4, studentsAfterDelete.size());
-        jdbcStudentDao.executeQuery("INSERT INTO school.student (group_id, first_name, last_name) VALUES\n" +
-                "    (null, 'Mark', 'Markson');");
+        assertFalse(jpaStudentDao.doesStudentExist(studentId));
     }
 
     @Test
     void deleteStudentNoSuchStudentIdTest() {
         //arranges
-        List<Student> studentsBeforeDelete = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(1509375500);
+        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
         //act
         deleteStudentCommand.execute(commandHolder);
-        List<Student> studentsAfterDelete = jdbcTemplate.query(
-                "select * from school.student", new StudentRowMapper());
         //asserts
-        assertEquals(studentsBeforeDelete.size(), studentsAfterDelete.size());
         assertEquals("Can't find this student id...", outputStreamCaptor.toString().trim());
+    }
+
+    @Test
+    void deleteStudentIncorrectInputTest() {
+        deleteStudentCommand.execute(null);
+        assertEquals("Student not deleted, check your input", outputStreamCaptor.toString().trim());
     }
 }

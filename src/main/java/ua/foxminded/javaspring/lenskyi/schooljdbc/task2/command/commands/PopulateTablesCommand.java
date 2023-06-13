@@ -1,42 +1,44 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 @Component
+@Transactional
 public class PopulateTablesCommand implements Command {
 
-    private JdbcCourseDao jdbcCourseDao;
-    private JdbcGroupDao jdbcGroupDao;
-    private JdbcStudentDao jdbcStudentDao;
-    private JdbcStudentCourseDao jdbcStudentCoursesDao;
+    private JpaCourseDao jpaCourseDao;
+    private JpaGroupDao jpaGroupDao;
+    private JpaStudentDao jpaStudentDao;
+    private JpaStudentCourseDao jpaStudentCourseDao;
     private RandomDataCreator randomDataCreator;
     private int numGroups = 10;
     private int numStudents = 200;
 
     @Autowired
-    public PopulateTablesCommand(JdbcCourseDao jdbcCourseDao, JdbcGroupDao jdbcGroupDao,
-                                 JdbcStudentDao jdbcStudentDao, JdbcStudentCourseDao jdbcStudentCoursesDao,
+    public PopulateTablesCommand(JpaCourseDao jpaCourseDao, JpaGroupDao jpaGroupDao,
+                                 JpaStudentDao jpaStudentDao, JpaStudentCourseDao jpaStudentCourseDao,
                                  RandomDataCreator randomDataCreator) {
-        this.jdbcCourseDao = jdbcCourseDao;
-        this.jdbcGroupDao = jdbcGroupDao;
-        this.jdbcStudentDao = jdbcStudentDao;
-        this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
+        this.jpaCourseDao = jpaCourseDao;
+        this.jpaGroupDao = jpaGroupDao;
+        this.jpaStudentDao = jpaStudentDao;
+        this.jpaStudentCourseDao = jpaStudentCourseDao;
         this.randomDataCreator = randomDataCreator;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        jdbcCourseDao.addCourses(randomDataCreator.getCoursesFromResources());
-        jdbcGroupDao.addGroups(randomDataCreator.generateGroups(numGroups));
-        jdbcStudentDao.addStudents(randomDataCreator.generateStudents(numStudents));
-        jdbcStudentCoursesDao.addStudentsCourses(randomDataCreator.generateStudentCourseRelation(numStudents));
+        jpaCourseDao.addCourses(randomDataCreator.getCoursesFromResources());
+        jpaGroupDao.addGroups(randomDataCreator.generateGroups(numGroups));
+        jpaStudentDao.addStudents(randomDataCreator.generateStudents(numStudents));
+        jpaStudentCourseDao.addStudentsCourses(randomDataCreator.enrollStudentsToCourses());
     }
 }

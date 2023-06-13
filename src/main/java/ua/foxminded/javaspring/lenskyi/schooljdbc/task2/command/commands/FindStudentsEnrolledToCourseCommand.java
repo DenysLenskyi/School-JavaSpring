@@ -1,15 +1,17 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JdbcStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
 
 @Component
+@Transactional
 public class FindStudentsEnrolledToCourseCommand implements Command {
 
     private static final String STUDENT_ID = "Student ID:";
@@ -22,11 +24,11 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JdbcStudentCourseDao jdbcStudentCoursesDao;
-    private JdbcCourseDao jdbcCourseDao;
+    private JpaStudentCourseDao jdbcStudentCoursesDao;
+    private JpaCourseDao jdbcCourseDao;
 
     @Autowired
-    public FindStudentsEnrolledToCourseCommand(JdbcStudentCourseDao jdbcStudentCoursesDao, JdbcCourseDao jdbcCourseDao) {
+    public FindStudentsEnrolledToCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao, JpaCourseDao jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }

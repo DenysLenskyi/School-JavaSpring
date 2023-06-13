@@ -8,13 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Course;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Group;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.domain.StudentCourse;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -26,20 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Testcontainers
 class RandomDataCreatorTest {
 
-    private Random random;
-    private FileReader reader;
     @Autowired
     private RandomDataCreator randomDataCreator;
-
-//    @BeforeEach
-//    public void setup() {
-//        random = new Random();
-//        reader = new FileReader();
-//        randomDataCreator = new RandomDataCreator(reader, random);
-//        randomDataCreator.setCOURSES("/courses.txt");
-//        randomDataCreator.setNAMES("/names.txt");
-//    }
-
 
     @ParameterizedTest
     @MethodSource("getArgsForGetCoursesTest")
@@ -77,10 +64,10 @@ class RandomDataCreatorTest {
 
     @Test
     void generateStudentCourseTest() {
-        Set<StudentCourse> studentCourses = randomDataCreator.generateStudentCourseRelation(200);
-        assertTrue(studentCourses.size() > 199);
+        Set<StudentCourse> studentCourses = randomDataCreator.enrollStudentsToCourses();
         studentCourses.forEach(e ->{
-            assertTrue(e.getStudentId() > 0);
+            assertTrue(e.getStudent().getFirstName().length() > 0);
+            assertTrue(e.getCourse().getName().length() > 0);
         });
     }
 }
