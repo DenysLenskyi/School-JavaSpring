@@ -11,8 +11,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -30,13 +31,13 @@ class RemoveStudentFromCourseCommandTest {
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     @Autowired
-    private StudentCourseRepository studentCourseRepository;
-    @Autowired
     private StudentRepository studentRepository;
     @Autowired
     private CourseRepository courseRepository;
     @Autowired
     private RemoveStudentFromCourseCommand removeStudentFromCourseCommand;
+    @Autowired
+    private RandomDataCreator randomDataCreator;
 
     @BeforeEach
     void setup() {
@@ -48,22 +49,21 @@ class RemoveStudentFromCourseCommandTest {
         System.setOut(standardOut);
     }
 
-//    @Test
-//    void removeStudentFromCourseCommandCorrectTest() {
-//        //arranges
-//        long studentId = studentRepository.getMinStudentId() + 3;
-//        studentCourseRepository.executeQuery("insert into school.student_course (student_id, course_id) values" +
-//                "(" + studentId + ",1);");
-//        CommandHolder commandHolder = new CommandHolder();
-//        commandHolder.setStudentId(studentId);
-//        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
-//        //act
-//        removeStudentFromCourseCommand.execute(commandHolder);
-//        //asserts
-//        assertFalse(studentCourseRepository.isStudentEnrolledToCourse(studentId,
-//                courseRepository.findById(courseRepository.getMinCourseId()).get().getName()));
-//        assertEquals("Student removed from the course", outputStreamCaptor.toString().trim());
-//    }
+    @Test
+    void removeStudentFromCourseCommandCorrectTest() {
+        //arranges
+        Student student = randomDataCreator.generateStudents(1).get(0);
+        studentRepository.save(student);
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setStudentId(student.getId());
+        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
+        //act
+        removeStudentFromCourseCommand.execute(commandHolder);
+        //asserts
+        assertFalse(studentRepository.doesStudentVisitTheCourse(student.getId(),
+                courseRepository.findById(courseRepository.getMinCourseId()).get().getId()));
+        assertEquals("Student removed from the course", outputStreamCaptor.toString().trim());
+    }
 
     @Test
     void removeStudentFromCourseCommandIncorrectCourseTest() {
@@ -92,20 +92,21 @@ class RemoveStudentFromCourseCommandTest {
                 outputStreamCaptor.toString().trim());
     }
 
-//    @Test
-//    void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
-//        //arranges
-//        long studentId = studentRepository.getMinStudentId() + 3;
-//        studentCourseRepository.executeQuery("insert into school.student_course (student_id, course_id) values" +
-//                "(" + studentId + ",1);");
-//        CommandHolder commandHolder = new CommandHolder();
-//        commandHolder.setStudentId(studentId);
-//        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
-//        //act
-//        removeStudentFromCourseCommand.execute(commandHolder);
-//        removeStudentFromCourseCommand.execute(commandHolder);
-//        //asserts
-//        assertTrue(outputStreamCaptor.toString().trim().contains("Student removed from the course\n" +
-//                "This student doesn't visit this course"));
-//    }
+    @Test
+    void removeStudentFromCourseCommandAlreadyRemovedStudentTest() {
+        //arranges
+        Student student = randomDataCreator.generateStudents(1).get(0);
+        studentRepository.save(student);
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setStudentId(student.getId());
+        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
+        //act
+        removeStudentFromCourseCommand.execute(commandHolder);
+        removeStudentFromCourseCommand.execute(commandHolder);
+        //asserts
+        assertFalse(studentRepository.doesStudentVisitTheCourse(student.getId(),
+                courseRepository.findById(courseRepository.getMinCourseId()).get().getId()));
+        assertTrue(outputStreamCaptor.toString().trim().contains("Student removed from the course\n" +
+                "This student doesn't visit this course"));
+    }
 }

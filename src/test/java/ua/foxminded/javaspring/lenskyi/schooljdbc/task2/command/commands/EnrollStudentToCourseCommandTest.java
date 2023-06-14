@@ -10,7 +10,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 import java.io.ByteArrayOutputStream;
@@ -28,8 +27,6 @@ class EnrollStudentToCourseCommandTest {
     private final static String expectedIncorrectCourseName = "Numerology";
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-    @Autowired
-    private StudentCourseRepository studentCourseRepository;
     @Autowired
     private EnrollStudentToCourseCommand enrollStudentToCourseCommand;
     @Autowired
@@ -57,8 +54,8 @@ class EnrollStudentToCourseCommandTest {
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(studentCourseRepository.isStudentEnrolledToCourse(studentRepository.getMinStudentId(),
-                courseRepository.findById(courseRepository.getMinCourseId()).get().getName()));
+        assertTrue(studentRepository.doesStudentVisitTheCourse(studentRepository.getMinStudentId(),
+                courseRepository.getMinCourseId()));
     }
 
     @Test
@@ -98,8 +95,8 @@ class EnrollStudentToCourseCommandTest {
         enrollStudentToCourseCommand.execute(commandHolder);
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(studentCourseRepository.isStudentEnrolledToCourse(studentId,
-                courseRepository.findById(courseRepository.getMinCourseId()).get().getName()));
+        assertTrue(studentRepository.doesStudentVisitTheCourse(studentRepository.getMinStudentId(),
+                courseRepository.getMinCourseId()));
         assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
     }
 }

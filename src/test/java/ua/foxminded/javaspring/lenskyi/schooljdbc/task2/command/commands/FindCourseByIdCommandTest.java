@@ -5,13 +5,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -49,7 +49,7 @@ class FindCourseByIdCommandTest {
     void findCourseByIdDoesntExistTest() {
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setCourseId(100);
-        assertThrows(EmptyResultDataAccessException.class, () -> {
+        assertThrows(NoSuchElementException.class, () -> {
             findCourseByIdCommand.execute(commandHolder);
         });
     }

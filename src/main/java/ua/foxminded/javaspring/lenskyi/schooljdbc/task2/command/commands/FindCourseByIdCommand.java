@@ -17,16 +17,16 @@ public class FindCourseByIdCommand implements Command {
     private static final String COURSE_DESCRIPTION = "Description: ";
     private static final String FORMAT = "%1$s %2$s | %3$s %4$s | %5$s %6$s\n";
 
-    private CourseRepository jdbcCourseDao;
+    private CourseRepository courseRepository;
 
     @Autowired
-    public FindCourseByIdCommand(CourseRepository jdbcCourseDao) {
-        this.jdbcCourseDao = jdbcCourseDao;
+    public FindCourseByIdCommand(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        Course course = jdbcCourseDao.findById(commandHolder.getCourseId()).get();
+        Course course = courseRepository.findById(commandHolder.getCourseId()).orElseThrow();
         String str = String.format(
                 FORMAT, COURSE_ID, course.getId(), COURSE_NAME, course.getName(),
                 COURSE_DESCRIPTION, course.getDescription());

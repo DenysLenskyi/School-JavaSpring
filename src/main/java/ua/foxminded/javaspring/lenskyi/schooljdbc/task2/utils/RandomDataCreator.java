@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class RandomDataCreator {
 
@@ -19,8 +19,6 @@ public class RandomDataCreator {
     private static final String SEMICOLON = ";";
     private static final String HYPHEN = "-";
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
-    private static final String SELECT_ALL_STUDENTS = "select s from Student s";
-    private static final String SELECT_ALL_COURSES = "select c from Course c";
     private FileReader reader;
     private Random secureRandom;
     @Value("${filename.names}")
@@ -29,8 +27,6 @@ public class RandomDataCreator {
     private String courses;
     @Autowired
     private GroupRepository groupRepository;
-    @Autowired
-    private StudentRepository studentRepository;
     @Autowired
     private CourseRepository courseRepository;
 
@@ -86,6 +82,7 @@ public class RandomDataCreator {
             students.add(student);
         }
         assignStudentsToGroups(students, 10, Math.toIntExact(groupRepository.getMinGroupId()));
+        enrollStudentsToCourses(students);
         return students;
     }
 
@@ -120,18 +117,15 @@ public class RandomDataCreator {
         }
     }
 
-    public Set<StudentCourse> enrollStudentsToCourses() {
-        Set<StudentCourse> studentsCourses = new HashSet<>();
-        List<Student> students = studentRepository.findAll();
+    public void enrollStudentsToCourses(List<Student> students) {
         List<Course> coursesList = courseRepository.findAll();
         students.forEach(student -> {
             int numCourses = secureRandom.nextInt(1, 4);
             while (numCourses > 0) {
-                studentsCourses.add(new StudentCourse(student, coursesList.get(secureRandom.nextInt(coursesList.size()))));
+                student.addCourse(coursesList.get(secureRandom.nextInt(coursesList.size())));
                 numCourses--;
             }
         });
-        return studentsCourses;
     }
 
     public List<Course> getCoursesFromResources() {

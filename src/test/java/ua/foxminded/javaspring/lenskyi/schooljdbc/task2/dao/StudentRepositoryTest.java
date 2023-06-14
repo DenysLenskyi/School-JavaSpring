@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +17,9 @@ class StudentRepositoryTest {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private RandomDataCreator randomDataCreator;
 
     @Test
     void doesStudentExistTrueTest() {

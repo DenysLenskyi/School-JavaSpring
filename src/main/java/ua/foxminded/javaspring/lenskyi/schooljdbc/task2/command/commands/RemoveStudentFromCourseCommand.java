@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 
 @Component
 @Transactional
@@ -24,17 +24,13 @@ public class RemoveStudentFromCourseCommand implements Command {
                                Physics, History, Finance, Sports, Etiquette.
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    private StudentCourseRepository jdbcStudentCoursesDao;
     private StudentRepository studentRepository;
-    private CourseRepository jdbcCourseDao;
+    private CourseRepository courseRepository;
 
     @Autowired
-    public RemoveStudentFromCourseCommand(StudentCourseRepository jdbcStudentCoursesDao,
-                                          StudentRepository studentRepository, CourseRepository jdbcCourseDao) {
-        this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
+    public RemoveStudentFromCourseCommand(StudentRepository studentRepository, CourseRepository courseRepository) {
         this.studentRepository = studentRepository;
-        this.jdbcCourseDao = jdbcCourseDao;
+        this.courseRepository = courseRepository;
     }
 
     @Override
@@ -44,17 +40,19 @@ public class RemoveStudentFromCourseCommand implements Command {
             log.warn("Attempt to remove non existed student with id={} from a course", commandHolder.getStudentId());
             return;
         }
-        if (!(jdbcCourseDao.existsByName(commandHolder.getCourseName()))) {
+        if (!(courseRepository.existsByName(commandHolder.getCourseName()))) {
             System.out.println(WRONG_COURSE_NAME);
             log.warn("Attempt to remove student from non existed course with name = {}", commandHolder.getCourseName());
             return;
         }
-        if (!(jdbcStudentCoursesDao.isStudentEnrolledToCourse(commandHolder.getStudentId(),
-                commandHolder.getCourseName()))) {
+        if (!(studentRepository.doesStudentVisitTheCourse(commandHolder.getStudentId(),
+                courseRepository.findCourseByName(commandHolder.getCourseName()).getId()))) {
             System.out.println(STUDENT_ALREADY_REMOVED);
             log.warn("Attempt to remove a student from the course they aren't visiting");
         } else {
-            jdbcStudentCoursesDao.removeStudentFromCourse(commandHolder.getStudentId(), commandHolder.getCourseName());
+            Student student = studentRepository.findById(commandHolder.getStudentId()).orElseThrow();
+            student.removeCourse(courseRepository.findCourseByName(commandHolder.getCourseName()).getId());
+            studentRepository.save(student);
             System.out.println(STUDENT_REMOVED_FROM_COURSE);
             log.info("Student with id={} removed from the course {}", commandHolder.getStudentId(),
                     commandHolder.getCourseName());

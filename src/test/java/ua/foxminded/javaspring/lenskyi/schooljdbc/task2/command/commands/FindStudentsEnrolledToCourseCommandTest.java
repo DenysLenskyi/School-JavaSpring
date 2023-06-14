@@ -1,5 +1,6 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.commands;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
@@ -10,13 +11,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -30,11 +33,11 @@ class FindStudentsEnrolledToCourseCommandTest {
     @Autowired
     private FindStudentsEnrolledToCourseCommand findStudentsEnrolledToCourseCommand;
     @Autowired
-    private StudentCourseRepository studentCourseRepository;
-    @Autowired
     private StudentRepository studentRepository;
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private RandomDataCreator randomDataCreator;
 
     @BeforeEach
     void setUp() {
@@ -46,21 +49,20 @@ class FindStudentsEnrolledToCourseCommandTest {
         System.setOut(standardOut);
     }
 
-//    @Test
-//    @Transactional
-//    void findStudentsEnrolledToCourseCommandCorrectTest() {
-//        //arranges
-//        long studentId = studentRepository.getMinStudentId() + 1;
-//        studentCourseRepository.executeQuery("insert into school.student_course (student_id, course_id) values" +
-//                "(" + studentId + ",1);");
-//        CommandHolder commandHolder = new CommandHolder();
-//        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
-//        //act
-//        findStudentsEnrolledToCourseCommand.execute(commandHolder);
-//        //asserts
-//        assertEquals("Student ID: " + studentId +
-//                " | Student name: Mark Markson", outputStreamCaptor.toString().trim());
-//    }
+    @Test
+    @Transactional
+    void findStudentsEnrolledToCourseCommandCorrectTest() {
+        //arranges
+        Student student = randomDataCreator.generateStudents(1).get(0);
+        studentRepository.save(student);
+        CommandHolder commandHolder = new CommandHolder();
+        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
+        //act
+        findStudentsEnrolledToCourseCommand.execute(commandHolder);
+        //asserts
+        assertTrue(outputStreamCaptor.toString().trim().contains("Student ID: " + student.getId() +
+                " | Student name: " + student.getFirstName() + " " + student.getLastName()));
+    }
 
     @Test
     void findStudentsEnrolledToCourseCommandIncorrectCourseTest() {

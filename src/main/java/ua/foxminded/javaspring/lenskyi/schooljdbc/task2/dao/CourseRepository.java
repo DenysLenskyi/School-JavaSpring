@@ -10,6 +10,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Boolean existsByName(String name);
 
+    Course findCourseByName(String name);
+
     @Query("select min(c.id) from Course c")
     Long getMinCourseId();
 
