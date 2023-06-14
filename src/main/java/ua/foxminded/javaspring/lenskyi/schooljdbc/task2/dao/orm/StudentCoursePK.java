@@ -10,9 +10,9 @@ import java.util.Objects;
 public class StudentCoursePK implements Serializable {
 
     @Column(name = "student_id")
-    private long studentId;
+    private Long studentId;
     @Column(name = "course_id")
-    private long courseId;
+    private Long courseId;
 
     @Override
     public boolean equals(Object o) {

@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
 
 @Component
 @Transactional
@@ -24,18 +24,18 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JpaStudentCourseDao jdbcStudentCoursesDao;
-    private JpaCourseDao jdbcCourseDao;
+    private StudentCourseRepository jdbcStudentCoursesDao;
+    private CourseRepository jdbcCourseDao;
 
     @Autowired
-    public FindStudentsEnrolledToCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao, JpaCourseDao jdbcCourseDao) {
+    public FindStudentsEnrolledToCourseCommand(StudentCourseRepository jdbcStudentCoursesDao, CourseRepository jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
         this.jdbcCourseDao = jdbcCourseDao;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (jdbcCourseDao.doesCourseExist(commandHolder.getCourseName())) {
+        if (jdbcCourseDao.existsByName(commandHolder.getCourseName())) {
             jdbcStudentCoursesDao.getStudentsEnrolledToCourse(commandHolder.getCourseName())
                     .stream()
                     .map(student -> String.format(FORMAT, STUDENT_ID, student.getId(),

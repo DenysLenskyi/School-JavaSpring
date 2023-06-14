@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -26,7 +26,7 @@ class DeleteStudentCommandTest {
     @Autowired
     private DeleteStudentCommand deleteStudentCommand;
     @Autowired
-    private JpaStudentDao jpaStudentDao;
+    private StudentRepository studentRepository;
 
     @BeforeEach
     void setup() {
@@ -41,21 +41,21 @@ class DeleteStudentCommandTest {
     @Test
     void deleteStudentCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMaxStudentId() - 1;
+        long studentId = studentRepository.getMaxStudentId() - 1;
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
         //act
         deleteStudentCommand.execute(commandHolder);
         //asserts
         assertEquals("Student deleted", outputStreamCaptor.toString().trim());
-        assertFalse(jpaStudentDao.doesStudentExist(studentId));
+        assertFalse(studentRepository.existsById(studentId));
     }
 
     @Test
     void deleteStudentNoSuchStudentIdTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
+        commandHolder.setStudentId(studentRepository.getMaxStudentId() + 1);
         //act
         deleteStudentCommand.execute(commandHolder);
         //asserts

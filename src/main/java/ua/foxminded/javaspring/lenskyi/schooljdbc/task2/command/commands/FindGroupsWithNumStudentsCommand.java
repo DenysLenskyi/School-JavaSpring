@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
 
 @Component
 @Transactional
@@ -21,17 +21,17 @@ public class FindGroupsWithNumStudentsCommand implements Command {
     private static final String DISCLAIMER_FORMAT = "%1$s %2$s %3$s";
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JpaGroupDao jpaGroupDao;
+    private GroupRepository groupRepository;
 
     @Autowired
-    public FindGroupsWithNumStudentsCommand(JpaGroupDao jpaGroupDao) {
-        this.jpaGroupDao = jpaGroupDao;
+    public FindGroupsWithNumStudentsCommand(GroupRepository groupRepository) {
+        this.groupRepository = groupRepository;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
         System.out.println(String.format(DISCLAIMER_FORMAT, DISCLAIMER, commandHolder.getNumStudents(), STUDENTS));
-        jpaGroupDao.findGroupsWithNumStudents(commandHolder.getNumStudents()).stream()
+        groupRepository.findGroupsWithNumStudents(commandHolder.getNumStudents()).stream()
                 .map(group -> String.format(FORMAT, GROUP_ID, group.getId(), GROUP_NAME, group.getName()))
                 .forEach(System.out::println);
         System.out.println('\n');

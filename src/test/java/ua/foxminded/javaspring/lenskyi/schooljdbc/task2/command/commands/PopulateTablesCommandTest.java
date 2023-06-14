@@ -12,10 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
@@ -38,20 +38,20 @@ class PopulateTablesCommandTest {
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
-    private JpaCourseDao jdbcCourseDao;
+    private CourseRepository jdbcCourseDao;
     @Autowired
-    private JpaGroupDao jpaGroupDao;
+    private GroupRepository groupRepository;
     @Autowired
-    private JpaStudentDao jpaStudentDao;
+    private StudentRepository studentRepository;
     @Autowired
-    private JpaStudentCourseDao jpaStudentCourseDao;
+    private StudentCourseRepository studentCourseRepository;
     private PopulateTablesCommand populateTablesCommand;
     private RandomDataCreator mockRandomDataCreator = Mockito.mock(RandomDataCreator.class);
 
     @BeforeEach
     void setup() {
-        populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, jpaGroupDao, jpaStudentDao,
-                jpaStudentCourseDao, mockRandomDataCreator);
+        populateTablesCommand = new PopulateTablesCommand(jdbcCourseDao, groupRepository, studentRepository,
+                studentCourseRepository, mockRandomDataCreator);
     }
 
     @Test

@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 @Component
 @Transactional
@@ -37,25 +37,25 @@ public class InfoCommand implements Command {
                deletes student from course
             """;
     private static final String FORMAT = "%1$s %2$s - %3$s\n%4$s %5$s - %6$s\n%7$s %8$s - %9$s\n%10$s";
-    private JpaCourseDao jpaCourseDao;
-    private JpaGroupDao jpaGroupDao;
-    private JpaStudentDao jpaStudentDao;
+    private CourseRepository courseRepository;
+    private GroupRepository groupRepository;
+    private StudentRepository studentRepository;
 
     @Autowired
-    public InfoCommand(JpaCourseDao jpaCourseDao, JpaGroupDao jpaGroupDao, JpaStudentDao jpaStudentDao) {
-        this.jpaCourseDao = jpaCourseDao;
-        this.jpaGroupDao = jpaGroupDao;
-        this.jpaStudentDao = jpaStudentDao;
+    public InfoCommand(CourseRepository courseRepository, GroupRepository groupRepository, StudentRepository studentRepository) {
+        this.courseRepository = courseRepository;
+        this.groupRepository = groupRepository;
+        this.studentRepository = studentRepository;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        Long minCourseId = jpaCourseDao.getMinCourseId();
-        Long maxCourseId = jpaCourseDao.getMaxCourseId();
-        Long minGroupId = jpaGroupDao.getMinGroupId();
-        Long maxGroupId = jpaGroupDao.getMaxGroupId();
-        Long minStudentId = jpaStudentDao.getMinStudentId();
-        Long maxStudentId = jpaStudentDao.getMaxStudentId();
+        Long minCourseId = courseRepository.getMinCourseId();
+        Long maxCourseId = courseRepository.getMaxCourseId();
+        Long minGroupId = groupRepository.getMinGroupId();
+        Long maxGroupId = groupRepository.getMaxGroupId();
+        Long minStudentId = studentRepository.getMinStudentId();
+        Long maxStudentId = studentRepository.getMaxStudentId();
         System.out.println(String.format(FORMAT,
                 INFO_LINE_1, minCourseId, maxCourseId,
                 INFO_LINE_2, minGroupId, maxGroupId,

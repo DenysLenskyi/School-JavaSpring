@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentCourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 @Component
 @Transactional
@@ -25,26 +25,26 @@ public class RemoveStudentFromCourseCommand implements Command {
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JpaStudentCourseDao jdbcStudentCoursesDao;
-    private JpaStudentDao jpaStudentDao;
-    private JpaCourseDao jdbcCourseDao;
+    private StudentCourseRepository jdbcStudentCoursesDao;
+    private StudentRepository studentRepository;
+    private CourseRepository jdbcCourseDao;
 
     @Autowired
-    public RemoveStudentFromCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao,
-                                          JpaStudentDao jpaStudentDao, JpaCourseDao jdbcCourseDao) {
+    public RemoveStudentFromCourseCommand(StudentCourseRepository jdbcStudentCoursesDao,
+                                          StudentRepository studentRepository, CourseRepository jdbcCourseDao) {
         this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
-        this.jpaStudentDao = jpaStudentDao;
+        this.studentRepository = studentRepository;
         this.jdbcCourseDao = jdbcCourseDao;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (!(jpaStudentDao.doesStudentExist(commandHolder.getStudentId()))) {
+        if (!(studentRepository.existsById(commandHolder.getStudentId()))) {
             System.out.println(WRONG_STUDENT_ID);
             log.warn("Attempt to remove non existed student with id={} from a course", commandHolder.getStudentId());
             return;
         }
-        if (!(jdbcCourseDao.doesCourseExist(commandHolder.getCourseName()))) {
+        if (!(jdbcCourseDao.existsByName(commandHolder.getCourseName()))) {
             System.out.println(WRONG_COURSE_NAME);
             log.warn("Attempt to remove student from non existed course with name = {}", commandHolder.getCourseName());
             return;

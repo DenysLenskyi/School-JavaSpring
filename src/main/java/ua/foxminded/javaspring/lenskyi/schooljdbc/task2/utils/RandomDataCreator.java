@@ -1,10 +1,10 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
@@ -27,10 +27,12 @@ public class RandomDataCreator {
     private String names;
     @Value("${filename.courses}")
     private String courses;
-    @PersistenceContext
-    private EntityManager entityManager;
     @Autowired
-    private JpaGroupDao jpaGroupDao;
+    private GroupRepository groupRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Autowired
     public RandomDataCreator(FileReader reader, Random secureRandom) {
@@ -83,7 +85,7 @@ public class RandomDataCreator {
             student.setLastName(generateStudentLastName(namesArray));
             students.add(student);
         }
-        assignStudentsToGroups(students, 10, Math.toIntExact(jpaGroupDao.getMinGroupId()));
+        assignStudentsToGroups(students, 10, Math.toIntExact(groupRepository.getMinGroupId()));
         return students;
     }
 
@@ -120,8 +122,8 @@ public class RandomDataCreator {
 
     public Set<StudentCourse> enrollStudentsToCourses() {
         Set<StudentCourse> studentsCourses = new HashSet<>();
-        List<Student> students = entityManager.createQuery(SELECT_ALL_STUDENTS).getResultList();
-        List<Course> coursesList = entityManager.createQuery(SELECT_ALL_COURSES).getResultList();
+        List<Student> students = studentRepository.findAll();
+        List<Course> coursesList = courseRepository.findAll();
         students.forEach(student -> {
             int numCourses = secureRandom.nextInt(1, 4);
             while (numCourses > 0) {

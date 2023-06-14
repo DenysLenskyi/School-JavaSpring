@@ -12,18 +12,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 @SpringBootTest
 @Testcontainers
-class JpaStudentDaoTest {
+class StudentRepositoryTest {
 
     @Autowired
-    private JpaStudentDao jpaStudentDao;
+    private StudentRepository studentRepository;
 
     @Test
     void doesStudentExistTrueTest() {
-        assertTrue(jpaStudentDao.doesStudentExist(jpaStudentDao.getMinStudentId()));
+        assertTrue(studentRepository.existsById(studentRepository.getMinStudentId()));
     }
 
     @Test
     void doesStudentExistFalseTest() {
-        assertFalse(jpaStudentDao.doesStudentExist(jpaStudentDao.getMaxStudentId() + 1));
+        assertFalse(studentRepository.existsById(studentRepository.getMaxStudentId() + 1));
     }
 }
