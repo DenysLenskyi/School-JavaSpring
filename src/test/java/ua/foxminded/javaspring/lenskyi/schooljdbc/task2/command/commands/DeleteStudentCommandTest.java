@@ -67,4 +67,10 @@ class DeleteStudentCommandTest {
         deleteStudentCommand.execute(null);
         assertEquals("Student not deleted, check your input", outputStreamCaptor.toString().trim());
     }
+
+    @Test
+    void deleteStudentWrongIdWithoutCheckIfItExists_shouldThrowNoException() {
+        Long maxStudentId = studentRepository.getMaxStudentId();
+        studentRepository.deleteById(maxStudentId + 100);
+    }
 }

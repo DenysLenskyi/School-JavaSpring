@@ -11,6 +11,9 @@ import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @Transactional
 public class AddStudentCommand implements Command {
@@ -31,29 +34,33 @@ public class AddStudentCommand implements Command {
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        Long maxGroupId = groupRepository.getMaxGroupId();
-        Long minGroupId = groupRepository.getMinGroupId();
-        if (commandHolder.getGroupId() == 0) {
+        List<Integer> availableGroupIdList = getAvailableGroupIdList();
+        if (availableGroupIdList.contains(Math.toIntExact(commandHolder.getGroupId()))) {
             Student newStudent = new Student();
-            newStudent.setGroupId(null);
+            if (commandHolder.getGroupId() == 0) {
+                newStudent.setGroupId(null);
+            } else {
+                newStudent.setGroupId(commandHolder.getGroupId());
+            }
             newStudent.setFirstName(commandHolder.getStudentFirstName());
             newStudent.setLastName(commandHolder.getStudentLastName());
             studentRepository.save(newStudent);
             System.out.println(STUDENT_ADDED);
-            log.info("Student {} {} added with null group id",
+            log.info("Student {} {} added",
                     commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
-        } else if ((commandHolder.getGroupId() > maxGroupId) || (commandHolder.getGroupId() < minGroupId)) {
+        } else {
             System.out.println(INCORRECT_GROUP_ID);
             System.out.println(STUDENT_NOT_ADDED);
             log.warn("Student not added. Reason: wrong group id - {}", commandHolder.getGroupId());
-        } else {
-            Student newStudent = new Student();
-            newStudent.setGroupId(commandHolder.getGroupId());
-            newStudent.setFirstName(commandHolder.getStudentFirstName());
-            newStudent.setLastName(commandHolder.getStudentLastName());
-            studentRepository.save(newStudent);
-            System.out.println(STUDENT_ADDED);
-            log.info("Student {} {} added", commandHolder.getStudentFirstName(), commandHolder.getStudentLastName());
         }
+    }
+
+    private List<Integer> getAvailableGroupIdList() {
+        List<Integer> availableGroupIds = new ArrayList<>();
+        for (int i = Math.toIntExact(groupRepository.getMinGroupId()); i <= groupRepository.getMaxGroupId(); i++) {
+            availableGroupIds.add(i);
+        }
+        availableGroupIds.add(0);
+        return availableGroupIds;
     }
 }
