@@ -1,17 +1,17 @@
 package ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class RandomDataCreator {
 
@@ -19,18 +19,16 @@ public class RandomDataCreator {
     private static final String SEMICOLON = ";";
     private static final String HYPHEN = "-";
     private static final String WHITESPACE_HYPHEN_WHITESPACE = " - ";
-    private static final String SELECT_ALL_STUDENTS = "select s from Student s";
-    private static final String SELECT_ALL_COURSES = "select c from Course c";
     private FileReader reader;
     private Random secureRandom;
     @Value("${filename.names}")
     private String names;
     @Value("${filename.courses}")
     private String courses;
-    @PersistenceContext
-    private EntityManager entityManager;
     @Autowired
-    private JpaGroupDao jpaGroupDao;
+    private GroupRepository groupRepository;
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Autowired
     public RandomDataCreator(FileReader reader, Random secureRandom) {
@@ -83,7 +81,8 @@ public class RandomDataCreator {
             student.setLastName(generateStudentLastName(namesArray));
             students.add(student);
         }
-        assignStudentsToGroups(students, 10, Math.toIntExact(jpaGroupDao.getMinGroupId()));
+        assignStudentsToGroups(students, 10, Math.toIntExact(groupRepository.getMinGroupId()));
+        enrollStudentsToCourses(students);
         return students;
     }
 
@@ -118,18 +117,15 @@ public class RandomDataCreator {
         }
     }
 
-    public Set<StudentCourse> enrollStudentsToCourses() {
-        Set<StudentCourse> studentsCourses = new HashSet<>();
-        List<Student> students = entityManager.createQuery(SELECT_ALL_STUDENTS).getResultList();
-        List<Course> coursesList = entityManager.createQuery(SELECT_ALL_COURSES).getResultList();
+    public void enrollStudentsToCourses(List<Student> students) {
+        List<Course> coursesList = courseRepository.findAll();
         students.forEach(student -> {
             int numCourses = secureRandom.nextInt(1, 4);
             while (numCourses > 0) {
-                studentsCourses.add(new StudentCourse(student, coursesList.get(secureRandom.nextInt(coursesList.size()))));
+                student.addCourse(coursesList.get(secureRandom.nextInt(coursesList.size())));
                 numCourses--;
             }
         });
-        return studentsCourses;
     }
 
     public List<Course> getCoursesFromResources() {

@@ -10,11 +10,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Course;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Group;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.StudentCourse;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,20 +51,5 @@ class RandomDataCreatorTest {
     void generateGroupsTest() {
         List<Group> groups = randomDataCreator.generateGroups(10);
         assertTrue(groups.size() == 10);
-    }
-
-    @Test
-    void generateStudentsTest() {
-        List<Student> students = randomDataCreator.generateStudents(10);
-        assertTrue(students.get(9).getFirstName().length() > 1);
-    }
-
-    @Test
-    void generateStudentCourseTest() {
-        Set<StudentCourse> studentCourses = randomDataCreator.enrollStudentsToCourses();
-        studentCourses.forEach(e ->{
-            assertTrue(e.getStudent().getFirstName().length() > 0);
-            assertTrue(e.getCourse().getName().length() > 0);
-        });
     }
 }

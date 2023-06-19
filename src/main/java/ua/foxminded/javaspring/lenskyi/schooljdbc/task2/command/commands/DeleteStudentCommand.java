@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 @Component
 @Transactional
@@ -18,18 +18,18 @@ public class DeleteStudentCommand implements Command {
     private static final String STUDENT_NOT_DELETED = "Student not deleted, check your input";
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private JpaStudentDao jpaStudentDao;
+    private StudentRepository studentRepository;
 
     @Autowired
-    public DeleteStudentCommand(JpaStudentDao jpaStudentDao) {
-        this.jpaStudentDao = jpaStudentDao;
+    public DeleteStudentCommand(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
         try {
-            if (jpaStudentDao.doesStudentExist(commandHolder.getStudentId())) {
-                jpaStudentDao.deleteStudent(commandHolder.getStudentId());
+            if (studentRepository.existsById(commandHolder.getStudentId())) {
+                studentRepository.deleteById(commandHolder.getStudentId());
                 System.out.println(STUDENT_DELETED);
                 log.info("Student with id={} deleted", commandHolder.getStudentId());
             } else {

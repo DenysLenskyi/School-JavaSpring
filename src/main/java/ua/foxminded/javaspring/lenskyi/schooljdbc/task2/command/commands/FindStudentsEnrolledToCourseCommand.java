@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 @Component
 @Transactional
@@ -23,20 +23,19 @@ public class FindStudentsEnrolledToCourseCommand implements Command {
                                Physics, History, Finance, Sports, Etiquette.
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    private JpaStudentCourseDao jdbcStudentCoursesDao;
-    private JpaCourseDao jdbcCourseDao;
+    private CourseRepository courseRepository;
+    private StudentRepository studentRepository;
 
     @Autowired
-    public FindStudentsEnrolledToCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao, JpaCourseDao jdbcCourseDao) {
-        this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
-        this.jdbcCourseDao = jdbcCourseDao;
+    public FindStudentsEnrolledToCourseCommand(StudentRepository studentRepository, CourseRepository courseRepository) {
+        this.studentRepository = studentRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (jdbcCourseDao.doesCourseExist(commandHolder.getCourseName())) {
-            jdbcStudentCoursesDao.getStudentsEnrolledToCourse(commandHolder.getCourseName())
+        if (courseRepository.existsByName(commandHolder.getCourseName())) {
+            studentRepository.findStudentsEnrolledToCourse(commandHolder.getCourseName())
                     .stream()
                     .map(student -> String.format(FORMAT, STUDENT_ID, student.getId(),
                             STUDENT_FULL_NAME, student.getFirstName(), student.getLastName()))

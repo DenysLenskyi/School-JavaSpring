@@ -5,40 +5,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaGroupDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.GroupRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.utils.RandomDataCreator;
 
 @Component
 @Transactional
 public class PopulateTablesCommand implements Command {
 
-    private JpaCourseDao jpaCourseDao;
-    private JpaGroupDao jpaGroupDao;
-    private JpaStudentDao jpaStudentDao;
-    private JpaStudentCourseDao jpaStudentCourseDao;
+    private CourseRepository courseRepository;
+    private GroupRepository groupRepository;
+    private StudentRepository studentRepository;
     private RandomDataCreator randomDataCreator;
     private int numGroups = 10;
     private int numStudents = 200;
 
     @Autowired
-    public PopulateTablesCommand(JpaCourseDao jpaCourseDao, JpaGroupDao jpaGroupDao,
-                                 JpaStudentDao jpaStudentDao, JpaStudentCourseDao jpaStudentCourseDao,
-                                 RandomDataCreator randomDataCreator) {
-        this.jpaCourseDao = jpaCourseDao;
-        this.jpaGroupDao = jpaGroupDao;
-        this.jpaStudentDao = jpaStudentDao;
-        this.jpaStudentCourseDao = jpaStudentCourseDao;
+    public PopulateTablesCommand(CourseRepository courseRepository, GroupRepository groupRepository,
+                                 StudentRepository studentRepository, RandomDataCreator randomDataCreator) {
+        this.courseRepository = courseRepository;
+        this.groupRepository = groupRepository;
+        this.studentRepository = studentRepository;
         this.randomDataCreator = randomDataCreator;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        jpaCourseDao.addCourses(randomDataCreator.getCoursesFromResources());
-        jpaGroupDao.addGroups(randomDataCreator.generateGroups(numGroups));
-        jpaStudentDao.addStudents(randomDataCreator.generateStudents(numStudents));
-        jpaStudentCourseDao.addStudentsCourses(randomDataCreator.enrollStudentsToCourses());
+        courseRepository.saveAll(randomDataCreator.getCoursesFromResources());
+        groupRepository.saveAll(randomDataCreator.generateGroups(numGroups));
+        studentRepository.saveAll(randomDataCreator.generateStudents(numStudents));
     }
 }

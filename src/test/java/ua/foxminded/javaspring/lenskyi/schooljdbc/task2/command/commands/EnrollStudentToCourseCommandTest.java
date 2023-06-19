@@ -9,9 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -29,13 +28,11 @@ class EnrollStudentToCourseCommandTest {
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     @Autowired
-    private JpaStudentCourseDao jpaStudentCourseDao;
-    @Autowired
     private EnrollStudentToCourseCommand enrollStudentToCourseCommand;
     @Autowired
-    private JpaStudentDao jpaStudentDao;
+    private StudentRepository studentRepository;
     @Autowired
-    private JpaCourseDao jpaCourseDao;
+    private CourseRepository courseRepository;
 
     @BeforeEach
     void setup() {
@@ -50,23 +47,23 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandCorrectTest() {
         //arranges
-        long studentId = jpaStudentDao.getMinStudentId();
+        long studentId = studentRepository.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
+        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(jpaStudentDao.getMinStudentId(),
-                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
+        assertTrue(studentRepository.doesStudentVisitTheCourse(studentRepository.getMinStudentId(),
+                courseRepository.getMinCourseId()));
     }
 
     @Test
     void enrollStudentToCourseCommandIncorrectStudentTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(jpaStudentDao.getMaxStudentId() + 1);
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
+        commandHolder.setStudentId(studentRepository.getMaxStudentId() + 1);
+        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
@@ -77,7 +74,7 @@ class EnrollStudentToCourseCommandTest {
     void enrollStudentToCourseCommandIncorrectCourseTest() {
         //arranges
         CommandHolder commandHolder = new CommandHolder();
-        commandHolder.setStudentId(jpaStudentDao.getMinStudentId());
+        commandHolder.setStudentId(studentRepository.getMinStudentId());
         commandHolder.setCourseName(expectedIncorrectCourseName);
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
@@ -90,16 +87,16 @@ class EnrollStudentToCourseCommandTest {
     @Test
     void enrollStudentToCourseCommandAlreadyEnrolledStudentTest() {
         //asserts
-        long studentId = jpaStudentDao.getMinStudentId();
+        long studentId = studentRepository.getMinStudentId();
         CommandHolder commandHolder = new CommandHolder();
         commandHolder.setStudentId(studentId);
-        commandHolder.setCourseName(jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName());
+        commandHolder.setCourseName(courseRepository.findById(courseRepository.getMinCourseId()).get().getName());
         //act
         enrollStudentToCourseCommand.execute(commandHolder);
         enrollStudentToCourseCommand.execute(commandHolder);
         //asserts
-        assertTrue(jpaStudentCourseDao.isStudentEnrolledToCourse(studentId,
-                jpaCourseDao.findCourseById(jpaCourseDao.getMinCourseId()).getName()));
+        assertTrue(studentRepository.doesStudentVisitTheCourse(studentRepository.getMinStudentId(),
+                courseRepository.getMinCourseId()));
         assertTrue(outputStreamCaptor.toString().trim().contains("This student already visits this course"));
     }
 }

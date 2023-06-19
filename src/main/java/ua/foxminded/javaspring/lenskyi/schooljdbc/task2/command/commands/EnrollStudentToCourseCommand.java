@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.Command;
 import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.command.CommandHolder;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentCourseDao;
-import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.JpaStudentDao;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.CourseRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.StudentRepository;
+import ua.foxminded.javaspring.lenskyi.schooljdbc.task2.dao.orm.Student;
 
 @Component
 @Transactional
@@ -24,37 +24,35 @@ public class EnrollStudentToCourseCommand implements Command {
                                Physics, History, Finance, Sports, Etiquette.
             """;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    private JpaStudentCourseDao jdbcStudentCoursesDao;
-    private JpaStudentDao jpaStudentDao;
-    private JpaCourseDao jdbcCourseDao;
+    private StudentRepository studentRepository;
+    private CourseRepository courseRepository;
 
     @Autowired
-    public EnrollStudentToCourseCommand(JpaStudentCourseDao jdbcStudentCoursesDao,
-                                        JpaStudentDao jpaStudentDao, JpaCourseDao jdbcCourseDao) {
-        this.jdbcStudentCoursesDao = jdbcStudentCoursesDao;
-        this.jpaStudentDao = jpaStudentDao;
-        this.jdbcCourseDao = jdbcCourseDao;
+    public EnrollStudentToCourseCommand(StudentRepository studentRepository, CourseRepository courseRepository) {
+        this.studentRepository = studentRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Override
     public void execute(CommandHolder commandHolder) {
-        if (!(jpaStudentDao.doesStudentExist(commandHolder.getStudentId()))) {
+        if (!(studentRepository.existsById(commandHolder.getStudentId()))) {
             System.out.println(WRONG_STUDENT_ID);
             log.warn("Attempt to enroll non existed student with id={} to a course", commandHolder.getStudentId());
             return;
         }
-        if (!(jdbcCourseDao.doesCourseExist(commandHolder.getCourseName()))) {
+        if (!(courseRepository.existsByName(commandHolder.getCourseName()))) {
             System.out.println(WRONG_COURSE_NAME);
             log.warn("Attempt to enroll student to non existed course with name = {}", commandHolder.getCourseName());
             return;
         }
-        if (jdbcStudentCoursesDao.isStudentEnrolledToCourse(commandHolder.getStudentId(),
-                commandHolder.getCourseName())) {
+        if (studentRepository.doesStudentVisitTheCourse(commandHolder.getStudentId(),
+                courseRepository.findCourseByName(commandHolder.getCourseName()).getId())) {
             System.out.println(STUDENT_ALREADY_ENROLLED);
             log.warn("Attempt to enroll already enrolled student to the course");
         } else {
-            jdbcStudentCoursesDao.addStudentToCourse(commandHolder.getStudentId(), commandHolder.getCourseName());
+            Student student = studentRepository.findById(commandHolder.getStudentId()).orElseThrow();
+            student.addCourse(courseRepository.findCourseByName(commandHolder.getCourseName()));
+            studentRepository.save(student);
             System.out.println(STUDENT_ENROLLED_TO_COURSE);
             log.info("Student with id={} enrolled to the course {}", commandHolder.getStudentId(),
                     commandHolder.getCourseName());
